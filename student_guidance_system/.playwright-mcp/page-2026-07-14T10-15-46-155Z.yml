@@ -1,0 +1,618 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: 🎓
+        - generic [ref=e6]: SGS Docs
+      - generic [ref=e7]: Course Counseling Platform
+    - generic [ref=e8]:
+      - generic [ref=e9]: Overview
+      - link "🎯 Vision & Objectives" [ref=e10] [cursor=pointer]:
+        - /url: "#vision"
+        - generic [ref=e11]: 🎯
+        - text: Vision & Objectives
+      - link "🏗️ System Architecture" [ref=e12] [cursor=pointer]:
+        - /url: "#architecture"
+        - generic [ref=e13]: 🏗️
+        - text: System Architecture
+      - link "🛤️ Student Journey" [ref=e14] [cursor=pointer]:
+        - /url: "#journey"
+        - generic [ref=e15]: 🛤️
+        - text: Student Journey
+      - link "📦 Module Breakdown" [ref=e16] [cursor=pointer]:
+        - /url: "#modules"
+        - generic [ref=e17]: 📦
+        - text: Module Breakdown
+      - link "🛠️ Tech Stack" [ref=e18] [cursor=pointer]:
+        - /url: "#tech-stack"
+        - generic [ref=e19]: 🛠️
+        - text: Tech Stack
+      - generic [ref=e20]: API Reference
+      - link "🔐 Authentication" [ref=e21] [cursor=pointer]:
+        - /url: "#api-auth"
+        - generic [ref=e22]: 🔐
+        - text: Authentication
+      - link "📚 Courses" [ref=e23] [cursor=pointer]:
+        - /url: "#api-courses"
+        - generic [ref=e24]: 📚
+        - text: Courses
+      - link "📝 Assessment" [ref=e25] [cursor=pointer]:
+        - /url: "#api-assessment"
+        - generic [ref=e26]: 📝
+        - text: Assessment
+      - link "💬 Counseling" [ref=e27] [cursor=pointer]:
+        - /url: "#api-counseling"
+        - generic [ref=e28]: 💬
+        - text: Counseling
+      - link "🎓 Enrollment" [ref=e29] [cursor=pointer]:
+        - /url: "#api-enrollment"
+        - generic [ref=e30]: 🎓
+        - text: Enrollment
+      - generic [ref=e31]: Database
+      - link "🗄️ ER Diagram" [ref=e32] [cursor=pointer]:
+        - /url: "#db-schema"
+        - generic [ref=e33]: 🗄️
+        - text: ER Diagram
+      - link "📋 Model Reference" [ref=e34] [cursor=pointer]:
+        - /url: "#db-models"
+        - generic [ref=e35]: 📋
+        - text: Model Reference
+      - generic [ref=e36]: Context
+      - link "🇳🇵 Nepal Ed-Tech" [ref=e37] [cursor=pointer]:
+        - /url: "#nepal-context"
+        - generic [ref=e38]: 🇳🇵
+        - text: Nepal Ed-Tech
+      - link "🗺️ Roadmap" [ref=e39] [cursor=pointer]:
+        - /url: "#roadmap"
+        - generic [ref=e40]: 🗺️
+        - text: Roadmap
+  - main [ref=e41]:
+    - generic [ref=e42]:
+      - heading "Student Guidance System" [level=1] [ref=e43]
+      - generic [ref=e44]:
+        - link "📄 Markdown" [ref=e45] [cursor=pointer]:
+          - /url: system-overview.md
+        - link "🔌 API Docs" [ref=e46] [cursor=pointer]:
+          - /url: api-reference.md
+        - button "🌙" [ref=e47] [cursor=pointer]
+    - generic [ref=e48]:
+      - generic [ref=e50]:
+        - generic [ref=e51]: 🎓
+        - heading "Student Guidance System" [level=1] [ref=e52]
+        - paragraph [ref=e53]:
+          - strong [ref=e54]: Replacing Manual Counseling with Intelligent Course Recommendations
+          - text: Inspired by SkillsShikya & BoardWays Nepal | Short-term Courses (2-3 Months)
+        - generic [ref=e55]:
+          - generic [ref=e56]: Django REST API
+          - generic [ref=e57]: JWT Authentication
+          - generic [ref=e58]: PostgreSQL
+          - generic [ref=e59]: AI Recommendations
+      - generic [ref=e60]:
+        - heading "🎯 Vision & Objectives" [level=2] [ref=e61]
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]: ❌
+              - generic [ref=e66]:
+                - generic [ref=e67]: The Problem
+                - generic [ref=e68]: Manual counseling bottlenecks
+            - list [ref=e69]:
+              - listitem [ref=e70]: 📍 Students visit physical centers for course info
+              - listitem [ref=e71]: ⏳ Long queues to meet counselors
+              - listitem [ref=e72]: 🎲 No personalized recommendations
+              - listitem [ref=e73]: 🔍 Can't compare courses across institutes
+              - listitem [ref=e74]: 📊 No progress tracking after enrollment
+          - generic [ref=e75]:
+            - generic [ref=e76]:
+              - generic [ref=e77]: ✅
+              - generic [ref=e78]:
+                - generic [ref=e79]: Our Solution
+                - generic [ref=e80]: Automated intelligent platform
+            - list [ref=e81]:
+              - listitem [ref=e82]: ✨ Quick skill/interest assessment
+              - listitem [ref=e83]: 🤖 AI-matched course recommendations
+              - listitem [ref=e84]: 📅 Real-time batch scheduling
+              - listitem [ref=e85]: 📈 Progress tracking & certificates
+              - listitem [ref=e86]: 👨‍🏫 Optional human counseling fallback
+        - generic [ref=e87]:
+          - strong [ref=e88]: "Target Audience:"
+          - text: +2 graduates, college students, career switchers, and fresh graduates in Nepal looking for job-ready skills in 2-3 months.
+      - generic [ref=e89]:
+        - heading "📚 Course Categories (2-3 Months)" [level=3] [ref=e90]
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - generic [ref=e93]: 🌐
+            - generic [ref=e94]: Web Dev
+            - generic [ref=e95]: MERN, Django, Next.js
+          - generic [ref=e96]:
+            - generic [ref=e97]: 🤖
+            - generic [ref=e98]: Data Science
+            - generic [ref=e99]: Python, ML, Analytics
+          - generic [ref=e100]:
+            - generic [ref=e101]: 🔒
+            - generic [ref=e102]: Cybersecurity
+            - generic [ref=e103]: Ethical Hacking, Network
+          - generic [ref=e104]:
+            - generic [ref=e105]: ☁️
+            - generic [ref=e106]: Cloud
+            - generic [ref=e107]: AWS, DevOps Basics
+          - generic [ref=e108]:
+            - generic [ref=e109]: 🎨
+            - generic [ref=e110]: UI/UX
+            - generic [ref=e111]: Figma, Research
+          - generic [ref=e112]:
+            - generic [ref=e113]: 📱
+            - generic [ref=e114]: Mobile
+            - generic [ref=e115]: Flutter, React Native
+          - generic [ref=e116]:
+            - generic [ref=e117]: 📢
+            - generic [ref=e118]: Marketing
+            - generic [ref=e119]: SEO, Social Media
+          - generic [ref=e120]:
+            - generic [ref=e121]: 💡
+            - generic [ref=e122]: More...
+            - generic [ref=e123]: Always expanding
+      - generic [ref=e124]:
+        - heading "🏗️ System Architecture" [level=2] [ref=e125]
+        - document [ref=e127]:
+          - generic [ref=e129]:
+            - generic [ref=e130]:
+              - generic [ref=e131]: Database (PostgreSQL)
+              - generic [ref=e136]: Django REST API
+              - generic [ref=e141]: Frontend (React/Vue)
+            - generic [ref=e156]:
+              - generic [ref=e157]: Users & Profiles
+              - generic [ref=e162]: Courses & Batches
+              - generic [ref=e167]: Assessments & Results
+              - generic [ref=e172]: Sessions & Recommendations
+              - generic [ref=e177]: Enrollments & Progress
+              - generic [ref=e182]: Authentication Module
+              - generic [ref=e187]: Courses Module
+              - generic [ref=e192]: Assessment Module
+              - generic [ref=e197]: Counseling Module
+              - generic [ref=e202]: Enrollment Module
+              - generic [ref=e207]: Student Dashboard
+              - generic [ref=e212]: Admin Dashboard
+              - generic [ref=e217]: Counselor Dashboard
+        - generic [ref=e222]:
+          - generic [ref=e223]:
+            - generic [ref=e224]:
+              - generic [ref=e225]: 🔐
+              - generic [ref=e226]: Authentication Layer
+            - paragraph [ref=e227]: JWT-based auth with 15-min access tokens and 7-day refresh tokens. Role-based access control for students, staff, and admins.
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - generic [ref=e230]: 🧠
+              - generic [ref=e231]: Recommendation Engine
+            - paragraph [ref=e232]: Match-score algorithm combining skill alignment (40%), interest match (30%), career goal fit (20%), and availability (10%).
+      - generic [ref=e233]:
+        - heading "🛤️ Student Journey Flow" [level=2] [ref=e234]
+        - document [ref=e236]:
+          - generic [ref=e238]:
+            - generic [ref=e248]:
+              - generic [ref=e249]: "No"
+              - generic [ref=e253]: "Yes"
+            - generic [ref=e257]:
+              - generic [ref=e258]: Student Visits Platform
+              - generic [ref=e263]: Already Registered?
+              - generic [ref=e268]: Sign Up with Email
+              - generic [ref=e273]: Login with JWT
+              - generic [ref=e278]: Student Dashboard
+              - generic [ref=e283]: Take Skill Assessment
+              - generic [ref=e288]: Browse Courses
+              - generic [ref=e293]: Book Counseling
+              - generic [ref=e298]: View Assessment Results
+              - generic [ref=e303]: Get AI-Matched Recommendations
+              - generic [ref=e308]: See Match Score & Reason
+              - generic [ref=e313]: View Course Detail
+              - generic [ref=e318]: See Available Batches
+              - generic [ref=e323]: Enroll in Course Batch
+              - generic [ref=e328]: Attend Counseling Session
+              - generic [ref=e333]: Complete Payment
+              - generic [ref=e338]: Enrollment Confirmed
+              - generic [ref=e343]: Start Learning
+              - generic [ref=e348]: Track Module Progress
+              - generic [ref=e353]: Get Certificate on Completion
+        - heading "Step-by-Step Flow" [level=3] [ref=e358]
+        - generic [ref=e359]:
+          - generic [ref=e360]: "1"
+          - generic [ref=e361]:
+            - generic [ref=e362]: Register & Login
+            - generic [ref=e363]: Student creates account with email, phone, and education level. JWT tokens returned for authenticated access.
+        - generic [ref=e364]: ↓
+        - generic [ref=e365]:
+          - generic [ref=e366]: "2"
+          - generic [ref=e367]:
+            - generic [ref=e368]: Take Skill Assessment
+            - generic [ref=e369]: 10-15 question quiz covering interests, aptitude, and career goals. Takes ~10 minutes.
+        - generic [ref=e370]: ↓
+        - generic [ref=e371]:
+          - generic [ref=e372]: "3"
+          - generic [ref=e373]:
+            - generic [ref=e374]: Get AI Recommendations
+            - generic [ref=e375]: System analyzes answers and suggests top 3-5 courses with match scores (0-100%) and detailed reasons.
+        - generic [ref=e376]: ↓
+        - generic [ref=e377]:
+          - generic [ref=e378]: "4"
+          - generic [ref=e379]:
+            - generic [ref=e380]: Book Counseling (Optional)
+            - generic [ref=e381]: For complex decisions, students can book a session with a staff counselor.
+        - generic [ref=e382]: ↓
+        - generic [ref=e383]:
+          - generic [ref=e384]: "5"
+          - generic [ref=e385]:
+            - generic [ref=e386]: Enroll in Course
+            - generic [ref=e387]: Select a course batch that fits schedule. Complete payment to confirm enrollment.
+        - generic [ref=e388]: ↓
+        - generic [ref=e389]:
+          - generic [ref=e390]: "6"
+          - generic [ref=e391]:
+            - generic [ref=e392]: Track Progress
+            - generic [ref=e393]: Mark modules as completed. See overall completion percentage. Access certificate on finish.
+      - generic [ref=e394]:
+        - heading "📦 Module Breakdown" [level=2] [ref=e395]
+        - generic [ref=e396]:
+          - generic [ref=e397]:
+            - generic [ref=e398]:
+              - generic [ref=e399]: 🔐
+              - generic [ref=e400]:
+                - generic [ref=e401]: Authentication
+                - generic [ref=e402]: JWT-based user management
+            - paragraph [ref=e403]: Custom User model with email login, role-based access (student/staff/admin), Profile management, and token blacklisting on logout.
+            - generic [ref=e404]:
+              - generic [ref=e405]: JWT
+              - generic [ref=e406]: SimpleJWT
+              - generic [ref=e407]: RBAC
+          - generic [ref=e408]:
+            - generic [ref=e409]:
+              - generic [ref=e410]: 📚
+              - generic [ref=e411]:
+                - generic [ref=e412]: Courses
+                - generic [ref=e413]: Course catalog & batch management
+            - paragraph [ref=e414]: Course categories, detailed course info with syllabus, batch scheduling with seat availability, and instructor profiles.
+            - generic [ref=e415]:
+              - generic [ref=e416]: Catalog
+              - generic [ref=e417]: Batches
+              - generic [ref=e418]: Syllabus
+          - generic [ref=e419]:
+            - generic [ref=e420]:
+              - generic [ref=e421]: 📝
+              - generic [ref=e422]:
+                - generic [ref=e423]: Assessment
+                - generic [ref=e424]: Skill & interest quizzes
+            - paragraph [ref=e425]: Dynamic questionnaires with weighted scoring. Category-based skill scoring drives the recommendation engine.
+            - generic [ref=e426]:
+              - generic [ref=e427]: Quizzes
+              - generic [ref=e428]: Scoring
+              - generic [ref=e429]: JSON Questions
+          - generic [ref=e430]:
+            - generic [ref=e431]:
+              - generic [ref=e432]: 💬
+              - generic [ref=e433]:
+                - generic [ref=e434]: Counseling
+                - generic [ref=e435]: Recommendations & sessions
+            - paragraph [ref=e436]: AI match-score algorithm, course recommendations with reasoning, and optional human counseling session booking.
+            - generic [ref=e437]:
+              - generic [ref=e438]: AI Matching
+              - generic [ref=e439]: Sessions
+              - generic [ref=e440]: Match Score
+          - generic [ref=e441]:
+            - generic [ref=e442]:
+              - generic [ref=e443]: 🎓
+              - generic [ref=e444]:
+                - generic [ref=e445]: Enrollment
+                - generic [ref=e446]: Batch enrollment & progress
+            - paragraph [ref=e447]: Course batch enrollment with payment tracking, module-by-module progress tracking, and certificate generation.
+            - generic [ref=e448]:
+              - generic [ref=e449]: Enrollment
+              - generic [ref=e450]: Progress
+              - generic [ref=e451]: Certificates
+          - generic [ref=e452]:
+            - generic [ref=e453]:
+              - generic [ref=e454]: 🗄️
+              - generic [ref=e455]:
+                - generic [ref=e456]: Base Model
+                - generic [ref=e457]: Soft-delete foundation
+            - paragraph [ref=e458]: All models extend BaseModel with soft-delete, audit fields (created_by, updated_by), and automatic timestamp tracking.
+            - generic [ref=e459]:
+              - generic [ref=e460]: Soft Delete
+              - generic [ref=e461]: Audit
+              - generic [ref=e462]: Timestamps
+      - generic [ref=e463]:
+        - heading "🛠️ Tech Stack" [level=2] [ref=e464]
+        - table [ref=e466]:
+          - rowgroup [ref=e467]:
+            - row [ref=e468]:
+              - columnheader "Layer" [ref=e469]
+              - columnheader "Technology" [ref=e470]
+              - columnheader "Version" [ref=e471]
+              - columnheader "Purpose" [ref=e472]
+          - rowgroup [ref=e473]:
+            - row [ref=e474]:
+              - cell "Language" [ref=e475]
+              - cell "Python" [ref=e476]
+              - cell "3.13+" [ref=e477]
+              - cell "Backend logic" [ref=e478]
+            - row [ref=e479]:
+              - cell "Framework" [ref=e480]
+              - cell "Django" [ref=e481]
+              - cell "6.0.6" [ref=e482]
+              - cell "Web framework" [ref=e483]
+            - row [ref=e484]:
+              - cell "API" [ref=e485]
+              - cell "Django REST Framework" [ref=e486]
+              - cell "3.17.1" [ref=e487]
+              - cell "REST API" [ref=e488]
+            - row [ref=e489]:
+              - cell "Auth" [ref=e490]
+              - cell "djangorestframework-simplejwt" [ref=e491]
+              - cell "5.5.1" [ref=e492]
+              - cell "JWT tokens" [ref=e493]
+            - row [ref=e494]:
+              - cell "Database" [ref=e495]
+              - cell "PostgreSQL" [ref=e496]
+              - cell "15+" [ref=e497]
+              - cell "Primary storage" [ref=e498]
+            - row [ref=e499]:
+              - cell "CORS" [ref=e500]
+              - cell "django-cors-headers" [ref=e501]
+              - cell "4.9.0" [ref=e502]
+              - cell "Cross-origin" [ref=e503]
+            - row [ref=e504]:
+              - cell "Config" [ref=e505]
+              - cell "python-decouple" [ref=e506]
+              - cell "3.8" [ref=e507]
+              - cell "Environment vars" [ref=e508]
+            - row [ref=e509]:
+              - cell "Images" [ref=e510]
+              - cell "Pillow" [ref=e511]
+              - cell "12.2.0" [ref=e512]
+              - cell "Image processing" [ref=e513]
+            - row [ref=e514]:
+              - cell "Frontend" [ref=e515]
+              - cell "React/Vue.js" [ref=e516]
+              - cell "—" [ref=e517]
+              - cell "Separate SPA" [ref=e518]
+      - generic [ref=e519]:
+        - heading "🔐 Authentication API" [level=2] [ref=e520]
+        - group [ref=e521]:
+          - generic "▶ POST /api/auth/register/ — Register new student" [ref=e522] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e523]: POST
+            - code [ref=e524]: /api/auth/register/
+            - text: — Register new student
+        - group [ref=e525]:
+          - generic "▶ POST /api/auth/login/ — Obtain JWT tokens" [ref=e526] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e527]: POST
+            - code [ref=e528]: /api/auth/login/
+            - text: — Obtain JWT tokens
+        - group [ref=e529]:
+          - generic "▶ POST /api/auth/logout/ — Blacklist refresh token" [ref=e530] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e531]: POST
+            - code [ref=e532]: /api/auth/logout/
+            - text: — Blacklist refresh token
+        - group [ref=e533]:
+          - generic "▶ GET /api/auth/me/ — Get current user" [ref=e534] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e535]: GET
+            - code [ref=e536]: /api/auth/me/
+            - text: — Get current user
+      - generic [ref=e537]:
+        - heading "📚 Courses API" [level=2] [ref=e538]
+        - group [ref=e539]:
+          - generic "▶ GET /api/courses/ — List all courses" [ref=e540] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e541]: GET
+            - code [ref=e542]: /api/courses/
+            - text: — List all courses
+        - group [ref=e543]:
+          - generic "▶ GET /api/courses/<id>/ — Course detail with batches" [ref=e544] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e545]: GET
+            - code [ref=e546]: /api/courses/<id>/
+            - text: — Course detail with batches
+      - generic [ref=e547]:
+        - heading "📝 Assessment API" [level=2] [ref=e548]
+        - group [ref=e549]:
+          - generic "▶ GET /api/assessments/ — List assessments" [ref=e550] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e551]: GET
+            - code [ref=e552]: /api/assessments/
+            - text: — List assessments
+        - group [ref=e553]:
+          - generic "▶ POST /api/assessments/<id>/submit/ — Submit answers" [ref=e554] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e555]: POST
+            - code [ref=e556]: /api/assessments/<id>/submit/
+            - text: — Submit answers
+      - generic [ref=e557]:
+        - heading "💬 Counseling API" [level=2] [ref=e558]
+        - group [ref=e559]:
+          - generic "▶ POST /api/counseling/request/ — Request session" [ref=e560] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e561]: POST
+            - code [ref=e562]: /api/counseling/request/
+            - text: — Request session
+        - group [ref=e563]:
+          - generic "▶ GET /api/counseling/recommendations/ — Get recommendations" [ref=e564] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e565]: GET
+            - code [ref=e566]: /api/counseling/recommendations/
+            - text: — Get recommendations
+      - generic [ref=e567]:
+        - heading "🎓 Enrollment API" [level=2] [ref=e568]
+        - group [ref=e569]:
+          - generic "▶ POST /api/enrollments/ — Enroll in batch" [ref=e570] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e571]: POST
+            - code [ref=e572]: /api/enrollments/
+            - text: — Enroll in batch
+        - group [ref=e573]:
+          - generic "▶ GET /api/enrollments/<id>/progress/ — View progress" [ref=e574] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e575]: GET
+            - code [ref=e576]: /api/enrollments/<id>/progress/
+            - text: — View progress
+        - group [ref=e577]:
+          - generic "▶ PATCH /api/enrollments/<id>/progress/ — Update progress" [ref=e578] [cursor=pointer]:
+            - text: ▶
+            - generic [ref=e579]: PATCH
+            - code [ref=e580]: /api/enrollments/<id>/progress/
+            - text: — Update progress
+      - generic [ref=e581]:
+        - heading "🗄️ Database Schema" [level=2] [ref=e582]
+        - document [ref=e584]:
+          - generic [ref=e593]: USER
+          - generic [ref=e596]: PROFILE
+          - generic [ref=e599]: STUDENT_ASSESSMENT
+          - generic [ref=e602]: COUNSELING_SESSION
+          - generic [ref=e605]: ENROLLMENT
+          - generic [ref=e608]: COURSE_RECOMMENDATION
+          - generic [ref=e611]: COURSE_CATEGORY
+          - generic [ref=e614]: COURSE
+          - generic [ref=e617]: COURSE_BATCH
+          - generic [ref=e620]: PROGRESS_TRACKER
+          - generic [ref=e623]: ASSESSMENT
+          - generic [ref=e627]: has
+          - generic [ref=e629]: takes
+          - generic [ref=e631]: requests
+          - generic [ref=e633]: enrolls
+          - generic [ref=e635]: receives
+          - generic [ref=e637]: contains
+          - generic [ref=e639]: has
+          - generic [ref=e641]: recommended_in
+          - generic [ref=e643]: enrolls
+          - generic [ref=e645]: tracks
+          - generic [ref=e647]: taken_as
+      - generic [ref=e648]:
+        - heading "📋 Key Models" [level=3] [ref=e649]
+        - generic [ref=e650]:
+          - generic [ref=e651]:
+            - generic [ref=e652]: User
+            - paragraph [ref=e653]: Custom user with email login, roles, soft-delete
+            - code [ref=e654]: email, username, phone, role, is_deleted
+          - generic [ref=e655]:
+            - generic [ref=e656]: Course
+            - paragraph [ref=e657]: Course catalog with syllabus, skills, pricing
+            - code [ref=e658]: title, category, duration_weeks, price, syllabus[JSON]
+          - generic [ref=e659]:
+            - generic [ref=e660]: CourseBatch
+            - paragraph [ref=e661]: Scheduled course instances with seat tracking
+            - code [ref=e662]: course, start_date, max_seats, current_enrollments, schedule[JSON]
+          - generic [ref=e663]:
+            - generic [ref=e664]: CourseRecommendation
+            - paragraph [ref=e665]: AI-generated suggestions with match scoring
+            - code [ref=e666]: student, course, match_score, reason[JSON], is_accepted
+      - generic [ref=e667]:
+        - heading "🇳🇵 Nepal Ed-Tech Context" [level=2] [ref=e668]
+        - generic [ref=e669]:
+          - strong [ref=e670]: "Why This Matters in Nepal:"
+          - text: Students finish +2 or Bachelor's but lack practical job skills. Institutes offer great courses but students don't know which one fits them. Manual counseling is time-consuming and inconsistent.
+        - heading "Reference Platforms" [level=3] [ref=e671]
+        - generic [ref=e672]:
+          - generic [ref=e673]:
+            - generic [ref=e674]:
+              - generic [ref=e675]: 🎓
+              - generic [ref=e676]: SkillsShikya
+            - paragraph [ref=e677]: Vocational skills, short courses, job placement focus. Emphasis on practical, hands-on training for immediate employment.
+          - generic [ref=e678]:
+            - generic [ref=e679]:
+              - generic [ref=e680]: 📖
+              - generic [ref=e681]: BoardWays
+            - paragraph [ref=e682]: Academic board preparation + career guidance. Focus on exam success plus long-term career planning.
+        - heading "Our Platform's Edge" [level=3] [ref=e683]
+        - generic [ref=e684]:
+          - generic [ref=e685]:
+            - generic [ref=e686]: ✅ Automated Assessment
+            - paragraph [ref=e687]: 10-min quiz replaces 30-min manual interview
+          - generic [ref=e688]:
+            - generic [ref=e689]: ✅ Smart Recommendations
+            - paragraph [ref=e690]: AI match-score with detailed reasoning
+          - generic [ref=e691]:
+            - generic [ref=e692]: ✅ Real-time Batches
+            - paragraph [ref=e693]: Live seat availability and scheduling
+          - generic [ref=e694]:
+            - generic [ref=e695]: ✅ Progress Tracking
+            - paragraph [ref=e696]: Module-by-module completion monitoring
+        - heading "Success Metrics" [level=3] [ref=e697]
+        - table [ref=e699]:
+          - rowgroup [ref=e700]:
+            - row [ref=e701]:
+              - columnheader "Metric" [ref=e702]
+              - columnheader "Target" [ref=e703]
+          - rowgroup [ref=e704]:
+            - row [ref=e705]:
+              - cell "Assessment Completion Rate" [ref=e706]
+              - cell "> 70%" [ref=e707]
+            - row [ref=e709]:
+              - cell "Recommendation Acceptance" [ref=e710]
+              - cell "> 40%" [ref=e711]
+            - row [ref=e713]:
+              - cell "Enrollment Conversion" [ref=e714]
+              - cell "> 25%" [ref=e715]
+            - row [ref=e717]:
+              - cell "Counseling Request Rate" [ref=e718]
+              - cell "< 15% (automation working!)" [ref=e719]:
+                - generic [ref=e720]: < 15%
+                - text: (automation working!)
+            - row [ref=e721]:
+              - cell "Student Satisfaction" [ref=e722]
+              - cell "> 4.0/5.0" [ref=e723]
+      - generic [ref=e725]:
+        - heading "🗺️ Development Roadmap" [level=2] [ref=e726]
+        - generic [ref=e727]:
+          - generic [ref=e728]: "1"
+          - generic [ref=e729]:
+            - generic [ref=e730]: "Phase 1: Authentication + Courses Catalog"
+            - generic [ref=e731]:
+              - text: JWT auth, User/Profile models, Course categories, Course listing with batches.
+              - generic [ref=e732]: Week 1
+        - generic [ref=e733]: ↓
+        - generic [ref=e734]:
+          - generic [ref=e735]: "2"
+          - generic [ref=e736]:
+            - generic [ref=e737]: "Phase 2: Assessment + Recommendation Engine"
+            - generic [ref=e738]:
+              - text: Quiz system, weighted scoring, match-score algorithm, course recommendations.
+              - generic [ref=e739]: Week 2
+        - generic [ref=e740]: ↓
+        - generic [ref=e741]:
+          - generic [ref=e742]: "3"
+          - generic [ref=e743]:
+            - generic [ref=e744]: "Phase 3: Counseling + Enrollment"
+            - generic [ref=e745]:
+              - text: Session booking, enrollment management, payment status tracking.
+              - generic [ref=e746]: Week 3
+        - generic [ref=e747]: ↓
+        - generic [ref=e748]:
+          - generic [ref=e749]: "4"
+          - generic [ref=e750]:
+            - generic [ref=e751]: "Phase 4: Progress Tracking + Certificates"
+            - generic [ref=e752]:
+              - text: Module progress, completion certificates, learning analytics.
+              - generic [ref=e753]: Week 4
+        - generic [ref=e754]: ↓
+        - generic [ref=e755]:
+          - generic [ref=e756]: "5"
+          - generic [ref=e757]:
+            - generic [ref=e758]: "Phase 5: Admin Dashboard + Analytics"
+            - generic [ref=e759]:
+              - text: Staff admin panel, enrollment reports, recommendation analytics.
+              - generic [ref=e760]: Week 5
+      - generic [ref=e761]:
+        - paragraph [ref=e762]:
+          - text: 🎓
+          - strong [ref=e763]: Student Guidance System
+          - text: — Course Counseling Platform
+        - paragraph [ref=e764]: Inspired by SkillsShikya & BoardWays Nepal | Document Version 1.0 | 2026-07-14
+        - paragraph [ref=e765]:
+          - link "📄 System Overview (MD)" [ref=e766] [cursor=pointer]:
+            - /url: system-overview.md
+          - text: •
+          - link "🔌 API Reference (MD)" [ref=e767] [cursor=pointer]:
+            - /url: api-reference.md
+          - text: •
+          - link "🗄️ Database Schema (MD)" [ref=e768] [cursor=pointer]:
+            - /url: database-schema.md

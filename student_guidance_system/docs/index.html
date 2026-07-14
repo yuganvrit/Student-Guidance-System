@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Guidance System — Documentation</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+
+<!-- Sidebar Navigation -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🎓</div>
+      <span>SGS Docs</span>
+    </div>
+    <div class="sidebar-subtitle">Course Counseling Platform</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="sidebar-section">Overview</div>
+    <a href="#vision" class="sidebar-link active"><span class="sidebar-link-icon">🎯</span> Vision & Objectives</a>
+    <a href="#architecture" class="sidebar-link"><span class="sidebar-link-icon">🏗️</span> System Architecture</a>
+    <a href="#journey" class="sidebar-link"><span class="sidebar-link-icon">🛤️</span> Student Journey</a>
+    <a href="#modules" class="sidebar-link"><span class="sidebar-link-icon">📦</span> Module Breakdown</a>
+    <a href="#tech-stack" class="sidebar-link"><span class="sidebar-link-icon">🛠️</span> Tech Stack</a>
+
+    <div class="sidebar-section">API Reference</div>
+    <a href="#api-auth" class="sidebar-link"><span class="sidebar-link-icon">🔐</span> Authentication</a>
+    <a href="#api-courses" class="sidebar-link"><span class="sidebar-link-icon">📚</span> Courses</a>
+    <a href="#api-assessment" class="sidebar-link"><span class="sidebar-link-icon">📝</span> Assessment</a>
+    <a href="#api-counseling" class="sidebar-link"><span class="sidebar-link-icon">💬</span> Counseling</a>
+    <a href="#api-enrollment" class="sidebar-link"><span class="sidebar-link-icon">🎓</span> Enrollment</a>
+
+    <div class="sidebar-section">Database</div>
+    <a href="#db-schema" class="sidebar-link"><span class="sidebar-link-icon">🗄️</span> ER Diagram</a>
+    <a href="#db-models" class="sidebar-link"><span class="sidebar-link-icon">📋</span> Model Reference</a>
+
+    <div class="sidebar-section">Context</div>
+    <a href="#nepal-context" class="sidebar-link"><span class="sidebar-link-icon">🇳🇵</span> Nepal Ed-Tech</a>
+    <a href="#roadmap" class="sidebar-link"><span class="sidebar-link-icon">🗺️</span> Roadmap</a>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main-content">
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <h1 class="top-bar-title">Student Guidance System</h1>
+    <div class="top-bar-actions">
+      <a href="system-overview.md" class="btn btn-sm" target="_blank">📄 Markdown</a>
+      <a href="api-reference.md" class="btn btn-sm" target="_blank">🔌 API Docs</a>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+    </div>
+  </header>
+
+  <div class="content-area">
+
+    <!-- Hero Section -->
+    <section id="vision">
+      <div class="card" style="text-align: center; padding: 48px 32px;">
+        <div style="font-size: 4rem; margin-bottom: 16px;">🎓</div>
+        <h1 style="margin-bottom: 12px;">Student Guidance System</h1>
+        <p style="font-size: 1.1rem; max-width: 600px; margin: 0 auto 24px;">
+          <strong>Replacing Manual Counseling with Intelligent Course Recommendations</strong><br>
+          Inspired by SkillsShikya & BoardWays Nepal | Short-term Courses (2-3 Months)
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <span class="badge badge-blue">Django REST API</span>
+          <span class="badge badge-purple">JWT Authentication</span>
+          <span class="badge badge-green">PostgreSQL</span>
+          <span class="badge badge-orange">AI Recommendations</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem & Solution -->
+    <section>
+      <h2>🎯 Vision & Objectives</h2>
+      
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon red">❌</div>
+            <div>
+              <div class="card-title">The Problem</div>
+              <div class="card-desc">Manual counseling bottlenecks</div>
+            </div>
+          </div>
+          <ul style="list-style: none; padding: 0;">
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">📍 Students visit physical centers for course info</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">⏳ Long queues to meet counselors</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">🎲 No personalized recommendations</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">🔍 Can't compare courses across institutes</li>
+            <li style="padding: 8px 0;">📊 No progress tracking after enrollment</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">✅</div>
+            <div>
+              <div class="card-title">Our Solution</div>
+              <div class="card-desc">Automated intelligent platform</div>
+            </div>
+          </div>
+          <ul style="list-style: none; padding: 0;">
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">✨ Quick skill/interest assessment</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">🤖 AI-matched course recommendations</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">📅 Real-time batch scheduling</li>
+            <li style="padding: 8px 0; border-bottom: 1px solid var(--border);">📈 Progress tracking & certificates</li>
+            <li style="padding: 8px 0;">👨‍🏫 Optional human counseling fallback</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>Target Audience:</strong> +2 graduates, college students, career switchers, and fresh graduates in Nepal looking for job-ready skills in 2-3 months.
+      </div>
+    </section>
+
+    <!-- Course Categories -->
+    <section>
+      <h3>📚 Course Categories (2-3 Months)</h3>
+      <div class="grid grid-4">
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🌐</div>
+          <div class="card-title">Web Dev</div>
+          <div class="card-desc">MERN, Django, Next.js</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🤖</div>
+          <div class="card-title">Data Science</div>
+          <div class="card-desc">Python, ML, Analytics</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🔒</div>
+          <div class="card-title">Cybersecurity</div>
+          <div class="card-desc">Ethical Hacking, Network</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">☁️</div>
+          <div class="card-title">Cloud</div>
+          <div class="card-desc">AWS, DevOps Basics</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">🎨</div>
+          <div class="card-title">UI/UX</div>
+          <div class="card-desc">Figma, Research</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📱</div>
+          <div class="card-title">Mobile</div>
+          <div class="card-desc">Flutter, React Native</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📢</div>
+          <div class="card-title">Marketing</div>
+          <div class="card-desc">SEO, Social Media</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div style="font-size: 2rem; margin-bottom: 8px;">💡</div>
+          <div class="card-title">More...</div>
+          <div class="card-desc">Always expanding</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- System Architecture -->
+    <section id="architecture">
+      <h2>🏗️ System Architecture</h2>
+      
+      <div class="mermaid">
+graph TB
+    subgraph "Frontend (React/Vue)"
+        A[Student Dashboard]
+        B[Admin Dashboard]
+        C[Counselor Dashboard]
+    end
+
+    subgraph "Django REST API"
+        D[Authentication Module]
+        E[Courses Module]
+        F[Assessment Module]
+        G[Counseling Module]
+        H[Enrollment Module]
+    end
+
+    subgraph "Database (PostgreSQL)"
+        I[(Users & Profiles)]
+        J[(Courses & Batches)]
+        K[(Assessments & Results)]
+        L[(Sessions & Recommendations)]
+        M[(Enrollments & Progress)]
+    end
+
+    A --> D
+    A --> E
+    A --> F
+    A --> G
+    A --> H
+    B --> D
+    B --> E
+    B --> G
+    C --> G
+    C --> H
+    D --> I
+    E --> J
+    F --> K
+    G --> L
+    H --> M
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🔐</div>
+            <div class="card-title">Authentication Layer</div>
+          </div>
+          <p class="card-desc">JWT-based auth with 15-min access tokens and 7-day refresh tokens. Role-based access control for students, staff, and admins.</p>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple">🧠</div>
+            <div class="card-title">Recommendation Engine</div>
+          </div>
+          <p class="card-desc">Match-score algorithm combining skill alignment (40%), interest match (30%), career goal fit (20%), and availability (10%).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Student Journey -->
+    <section id="journey">
+      <h2>🛤️ Student Journey Flow</h2>
+
+      <div class="mermaid">
+flowchart TD
+    Start([Student Visits Platform]) --> Register{Already Registered?}
+    Register -->|No| SignUp[Sign Up with Email]
+    Register -->|Yes| Login[Login with JWT]
+    SignUp --> Login
+    
+    Login --> Dashboard[Student Dashboard]
+    
+    Dashboard --> Assessment[Take Skill Assessment]
+    Dashboard --> Browse[Browse Courses]
+    Dashboard --> Counsel[Book Counseling]
+    
+    Assessment --> Results[View Assessment Results]
+    Results --> Recommendations[Get AI-Matched Recommendations]
+    Recommendations --> MatchScore[See Match Score & Reason]
+    
+    Browse --> CourseDetail[View Course Detail]
+    CourseDetail --> BatchInfo[See Available Batches]
+    
+    MatchScore --> Enroll[Enroll in Course Batch]
+    BatchInfo --> Enroll
+    Counsel --> Session[Attend Counseling Session]
+    Session --> Enroll
+    
+    Enroll --> Payment[Complete Payment]
+    Payment --> Confirmed[Enrollment Confirmed]
+    
+    Confirmed --> Learning[Start Learning]
+    Learning --> Progress[Track Module Progress]
+    Progress --> Certificate[Get Certificate on Completion]
+    
+    style Start fill:#4CAF50,color:#fff
+    style Certificate fill:#FF9800,color:#fff
+    style Enroll fill:#2196F3,color:#fff
+      </div>
+
+      <h3>Step-by-Step Flow</h3>
+      <div class="flow-step">
+        <div class="flow-step-number">1</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Register & Login</div>
+          <div class="flow-step-desc">Student creates account with email, phone, and education level. JWT tokens returned for authenticated access.</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number">2</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Take Skill Assessment</div>
+          <div class="flow-step-desc">10-15 question quiz covering interests, aptitude, and career goals. Takes ~10 minutes.</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number">3</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Get AI Recommendations</div>
+          <div class="flow-step-desc">System analyzes answers and suggests top 3-5 courses with match scores (0-100%) and detailed reasons.</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number">4</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Book Counseling (Optional)</div>
+          <div class="flow-step-desc">For complex decisions, students can book a session with a staff counselor.</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number">5</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Enroll in Course</div>
+          <div class="flow-step-desc">Select a course batch that fits schedule. Complete payment to confirm enrollment.</div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number">6</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Track Progress</div>
+          <div class="flow-step-desc">Mark modules as completed. See overall completion percentage. Access certificate on finish.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Module Breakdown -->
+    <section id="modules">
+      <h2>📦 Module Breakdown</h2>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🔐</div>
+            <div>
+              <div class="card-title">Authentication</div>
+              <div class="card-desc">JWT-based user management</div>
+            </div>
+          </div>
+          <p>Custom User model with email login, role-based access (student/staff/admin), Profile management, and token blacklisting on logout.</p>
+          <div style="margin-top: 12px;">
+            <span class="badge badge-blue">JWT</span>
+            <span class="badge badge-blue">SimpleJWT</span>
+            <span class="badge badge-blue">RBAC</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple">📚</div>
+            <div>
+              <div class="card-title">Courses</div>
+              <div class="card-desc">Course catalog & batch management</div>
+            </div>
+          </div>
+          <p>Course categories, detailed course info with syllabus, batch scheduling with seat availability, and instructor profiles.</p>
+          <div style="margin-top: 12px;">
+            <span class="badge badge-purple">Catalog</span>
+            <span class="badge badge-purple">Batches</span>
+            <span class="badge badge-purple">Syllabus</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon cyan">📝</div>
+            <div>
+              <div class="card-title">Assessment</div>
+              <div class="card-desc">Skill & interest quizzes</div>
+            </div>
+          </div>
+          <p>Dynamic questionnaires with weighted scoring. Category-based skill scoring drives the recommendation engine.</p>
+          <div style="margin-top: 12px;">
+            <span class="badge badge-blue">Quizzes</span>
+            <span class="badge badge-blue">Scoring</span>
+            <span class="badge badge-blue">JSON Questions</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon green">💬</div>
+            <div>
+              <div class="card-title">Counseling</div>
+              <div class="card-desc">Recommendations & sessions</div>
+            </div>
+          </div>
+          <p>AI match-score algorithm, course recommendations with reasoning, and optional human counseling session booking.</p>
+          <div style="margin-top: 12px;">
+            <span class="badge badge-green">AI Matching</span>
+            <span class="badge badge-green">Sessions</span>
+            <span class="badge badge-green">Match Score</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon orange">🎓</div>
+            <div>
+              <div class="card-title">Enrollment</div>
+              <div class="card-desc">Batch enrollment & progress</div>
+            </div>
+          </div>
+          <p>Course batch enrollment with payment tracking, module-by-module progress tracking, and certificate generation.</p>
+          <div style="margin-top: 12px;">
+            <span class="badge badge-orange">Enrollment</span>
+            <span class="badge badge-orange">Progress</span>
+            <span class="badge badge-orange">Certificates</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon red">🗄️</div>
+            <div>
+              <div class="card-title">Base Model</div>
+              <div class="card-desc">Soft-delete foundation</div>
+            </div>
+          </div>
+          <p>All models extend BaseModel with soft-delete, audit fields (created_by, updated_by), and automatic timestamp tracking.</p>
+          <div style="margin-top: 12px;">
+            <span class="badge badge-red">Soft Delete</span>
+            <span class="badge badge-red">Audit</span>
+            <span class="badge badge-red">Timestamps</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section id="tech-stack">
+      <h2>🛠️ Tech Stack</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Layer</th><th>Technology</th><th>Version</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Language</td><td>Python</td><td>3.13+</td><td>Backend logic</td></tr>
+            <tr><td>Framework</td><td>Django</td><td>6.0.6</td><td>Web framework</td></tr>
+            <tr><td>API</td><td>Django REST Framework</td><td>3.17.1</td><td>REST API</td></tr>
+            <tr><td>Auth</td><td>djangorestframework-simplejwt</td><td>5.5.1</td><td>JWT tokens</td></tr>
+            <tr><td>Database</td><td>PostgreSQL</td><td>15+</td><td>Primary storage</td></tr>
+            <tr><td>CORS</td><td>django-cors-headers</td><td>4.9.0</td><td>Cross-origin</td></tr>
+            <tr><td>Config</td><td>python-decouple</td><td>3.8</td><td>Environment vars</td></tr>
+            <tr><td>Images</td><td>Pillow</td><td>12.2.0</td><td>Image processing</td></tr>
+            <tr><td>Frontend</td><td>React/Vue.js</td><td>—</td><td>Separate SPA</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- API Reference Section -->
+    <section id="api-auth">
+      <h2>🔐 Authentication API</h2>
+      
+      <details>
+        <summary><span class="http-method http-post">POST</span> <code>/api/auth/register/</code> — Register new student</summary>
+        <div>
+          <p><strong>Auth:</strong> Public</p>
+          <pre><code>{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "SecurePass123!",
+  "password2": "SecurePass123!",
+  "first_name": "John",
+  "last_name": "Doe",
+  "phone": "+977-9801234567"
+}</code></pre>
+          <p><strong>Response (201):</strong></p>
+          <pre><code>{
+  "success": true,
+  "data": { "id": 1, "username": "john_doe", ... },
+  "message": "User registered successfully"
+}</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="http-method http-post">POST</span> <code>/api/auth/login/</code> — Obtain JWT tokens</summary>
+        <div>
+          <p><strong>Auth:</strong> Public</p>
+          <pre><code>{
+  "email": "john@example.com",
+  "password": "SecurePass123!"
+}</code></pre>
+          <p><strong>Response (200):</strong></p>
+          <pre><code>{
+  "success": true,
+  "data": {
+    "access": "eyJhbGciOiJIUzI1NiIs...",
+    "refresh": "eyJhbGciOiJIUzI1NiIs...",
+    "user": { "id": 1, "email": "...", "role": "student" }
+  }
+}</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="http-method http-post">POST</span> <code>/api/auth/logout/</code> — Blacklist refresh token</summary>
+        <div>
+          <p><strong>Auth:</strong> Required</p>
+          <pre><code>{ "refresh": "eyJhbGciOiJIUzI1NiIs..." }</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="http-method http-get">GET</span> <code>/api/auth/me/</code> — Get current user</summary>
+        <div>
+          <p><strong>Auth:</strong> Required (Bearer token)</p>
+          <pre><code>{
+  "success": true,
+  "data": {
+    "id": 1, "username": "john_doe", "email": "...",
+    "profile": { "bio": "...", "image": "...", "address": "..." }
+  }
+}</code></pre>
+        </div>
+      </details>
+    </section>
+
+    <section id="api-courses">
+      <h2>📚 Courses API</h2>
+      
+      <details>
+        <summary><span class="http-method http-get">GET</span> <code>/api/courses/</code> — List all courses</summary>
+        <div>
+          <p><strong>Query params:</strong> <code>category</code>, <code>level</code>, <code>search</code>, <code>page</code></p>
+          <pre><code>{
+  "count": 25,
+  "results": [
+    {
+      "id": 1,
+      "title": "MERN Stack Development",
+      "category": { "name": "Web Development" },
+      "level": "intermediate",
+      "duration_weeks": 12,
+      "price": 25000,
+      "skills_gained": ["React", "Node.js", "MongoDB"]
+    }
+  ]
+}</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="http-method http-get">GET</span> <code>/api/courses/&lt;id&gt;/</code> — Course detail with batches</summary>
+        <div>
+          <pre><code>{
+  "id": 1,
+  "title": "MERN Stack Development",
+  "syllabus": [
+    {"week": 1, "topic": "JavaScript ES6+", ...},
+    {"week": 2, "topic": "Node.js & Express", ...}
+  ],
+  "batches": [
+    {
+      "start_date": "2026-08-01",
+      "available_seats": 7,
+      "schedule": { "days": ["Sun", "Tue", "Thu"], "time": "07:00-09:00" }
+    }
+  ]
+}</code></pre>
+        </div>
+      </details>
+    </section>
+
+    <section id="api-assessment">
+      <h2>📝 Assessment API</h2>
+      
+      <details>
+        <summary><span class="http-method http-get">GET</span> <code>/api/assessments/</code> — List assessments</summary>
+        <div>
+          <p><strong>Auth:</strong> Required</p>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="http-method http-post">POST</span> <code>/api/assessments/&lt;id&gt;/submit/</code> — Submit answers</summary>
+        <div>
+          <pre><code>{
+  "answers": [
+    {"question_id": 1, "selected_option": "yes_love"},
+    {"question_id": 2, "selected_option": "web_dev"}
+  ]
+}</code></pre>
+          <p><strong>Response:</strong> Score + recommended courses with match scores</p>
+        </div>
+      </details>
+    </section>
+
+    <section id="api-counseling">
+      <h2>💬 Counseling API</h2>
+      
+      <details>
+        <summary><span class="http-method http-post">POST</span> <code>/api/counseling/request/</code> — Request session</summary>
+        <div>
+          <pre><code>{
+  "preferred_date": "2026-07-20",
+  "preferred_time": "14:00",
+  "notes": "Confused between MERN and Django"
+}</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="http-method http-get">GET</span> <code>/api/counseling/recommendations/</code> — Get recommendations</summary>
+        <div>
+          <pre><code>{
+  "data": [
+    {
+      "course": { "id": 1, "title": "MERN Stack" },
+      "match_score": 92,
+      "reason": { "skill_alignment": "...", "market_demand": "..." }
+    }
+  ]
+}</code></pre>
+        </div>
+      </details>
+    </section>
+
+    <section id="api-enrollment">
+      <h2>🎓 Enrollment API</h2>
+      
+      <details>
+        <summary><span class="http-method http-post">POST</span> <code>/api/enrollments/</code> — Enroll in batch</summary>
+        <div>
+          <pre><code>{ "course_batch": 1, "payment_method": "esewa" }</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="http-method http-get">GET</span> <code>/api/enrollments/&lt;id&gt;/progress/</code> — View progress</summary>
+        <div>
+          <pre><code>{
+  "overall_completion": 25,
+  "modules": [
+    {"name": "JS ES6+", "completed": true, "completed_at": "2026-07-18"},
+    {"name": "Node.js", "completed": false, "completed_at": null}
+  ]
+}</code></pre>
+        </div>
+      </details>
+
+      <details>
+        <summary><span class="http-method http-patch">PATCH</span> <code>/api/enrollments/&lt;id&gt;/progress/</code> — Update progress</summary>
+        <div>
+          <pre><code>{ "module_name": "Node.js & Express", "completed": true }</code></pre>
+        </div>
+      </details>
+    </section>
+
+    <!-- Database Section -->
+    <section id="db-schema">
+      <h2>🗄️ Database Schema</h2>
+      <div class="mermaid">
+erDiagram
+    USER ||--o| PROFILE : has
+    USER ||--o{ STUDENT_ASSESSMENT : takes
+    USER ||--o{ COUNSELING_SESSION : requests
+    USER ||--o{ ENROLLMENT : enrolls
+    USER ||--o{ COURSE_RECOMMENDATION : receives
+    COURSE_CATEGORY ||--o{ COURSE : contains
+    COURSE ||--o{ COURSE_BATCH : has
+    COURSE ||--o{ COURSE_RECOMMENDATION : recommended_in
+    COURSE_BATCH ||--o{ ENROLLMENT : enrolls
+    ENROLLMENT ||--o| PROGRESS_TRACKER : tracks
+    ASSESSMENT ||--o{ STUDENT_ASSESSMENT : taken_as
+      </div>
+    </section>
+
+    <section id="db-models">
+      <h3>📋 Key Models</h3>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title">User</div>
+          <p class="card-desc">Custom user with email login, roles, soft-delete</p>
+          <code>email, username, phone, role, is_deleted</code>
+        </div>
+        <div class="card">
+          <div class="card-title">Course</div>
+          <p class="card-desc">Course catalog with syllabus, skills, pricing</p>
+          <code>title, category, duration_weeks, price, syllabus[JSON]</code>
+        </div>
+        <div class="card">
+          <div class="card-title">CourseBatch</div>
+          <p class="card-desc">Scheduled course instances with seat tracking</p>
+          <code>course, start_date, max_seats, current_enrollments, schedule[JSON]</code>
+        </div>
+        <div class="card">
+          <div class="card-title">CourseRecommendation</div>
+          <p class="card-desc">AI-generated suggestions with match scoring</p>
+          <code>student, course, match_score, reason[JSON], is_accepted</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Nepal Context -->
+    <section id="nepal-context">
+      <h2>🇳🇵 Nepal Ed-Tech Context</h2>
+      
+      <div class="success-box">
+        <strong>Why This Matters in Nepal:</strong> Students finish +2 or Bachelor's but lack practical job skills. Institutes offer great courses but students don't know which one fits them. Manual counseling is time-consuming and inconsistent.
+      </div>
+
+      <h3>Reference Platforms</h3>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon blue">🎓</div>
+            <div class="card-title">SkillsShikya</div>
+          </div>
+          <p>Vocational skills, short courses, job placement focus. Emphasis on practical, hands-on training for immediate employment.</p>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon purple">📖</div>
+            <div class="card-title">BoardWays</div>
+          </div>
+          <p>Academic board preparation + career guidance. Focus on exam success plus long-term career planning.</p>
+        </div>
+      </div>
+
+      <h3>Our Platform's Edge</h3>
+      <div class="grid grid-2">
+        <div class="card" style="border-left: 4px solid var(--success);">
+          <div class="card-title">✅ Automated Assessment</div>
+          <p class="card-desc">10-min quiz replaces 30-min manual interview</p>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--success);">
+          <div class="card-title">✅ Smart Recommendations</div>
+          <p class="card-desc">AI match-score with detailed reasoning</p>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--success);">
+          <div class="card-title">✅ Real-time Batches</div>
+          <p class="card-desc">Live seat availability and scheduling</p>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--success);">
+          <div class="card-title">✅ Progress Tracking</div>
+          <p class="card-desc">Module-by-module completion monitoring</p>
+        </div>
+      </div>
+
+      <h3>Success Metrics</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>Target</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Assessment Completion Rate</td><td><span class="badge badge-green">&gt; 70%</span></td></tr>
+            <tr><td>Recommendation Acceptance</td><td><span class="badge badge-green">&gt; 40%</span></td></tr>
+            <tr><td>Enrollment Conversion</td><td><span class="badge badge-green">&gt; 25%</span></td></tr>
+            <tr><td>Counseling Request Rate</td><td><span class="badge badge-orange">&lt; 15%</span> (automation working!)</td></tr>
+            <tr><td>Student Satisfaction</td><td><span class="badge badge-green">&gt; 4.0/5.0</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section id="roadmap">
+      <h2>🗺️ Development Roadmap</h2>
+      
+      <div class="flow-step">
+        <div class="flow-step-number" style="background: linear-gradient(135deg, #2563eb, #7c3aed);">1</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Phase 1: Authentication + Courses Catalog</div>
+          <div class="flow-step-desc">JWT auth, User/Profile models, Course categories, Course listing with batches. <span class="badge badge-blue">Week 1</span></div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number" style="background: linear-gradient(135deg, #7c3aed, #06b6d4);">2</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Phase 2: Assessment + Recommendation Engine</div>
+          <div class="flow-step-desc">Quiz system, weighted scoring, match-score algorithm, course recommendations. <span class="badge badge-purple">Week 2</span></div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number" style="background: linear-gradient(135deg, #06b6d4, #22c55e);">3</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Phase 3: Counseling + Enrollment</div>
+          <div class="flow-step-desc">Session booking, enrollment management, payment status tracking. <span class="badge badge-cyan">Week 3</span></div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number" style="background: linear-gradient(135deg, #22c55e, #f59e0b);">4</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Phase 4: Progress Tracking + Certificates</div>
+          <div class="flow-step-desc">Module progress, completion certificates, learning analytics. <span class="badge badge-green">Week 4</span></div>
+        </div>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="flow-step-number" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">5</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Phase 5: Admin Dashboard + Analytics</div>
+          <div class="flow-step-desc">Staff admin panel, enrollment reports, recommendation analytics. <span class="badge badge-orange">Week 5</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="doc-footer">
+      <p>🎓 <strong>Student Guidance System</strong> — Course Counseling Platform</p>
+      <p style="margin-top: 8px; font-size: 0.8rem;">Inspired by SkillsShikya & BoardWays Nepal | Document Version 1.0 | 2026-07-14</p>
+      <p style="margin-top: 12px;">
+        <a href="system-overview.md" target="_blank">📄 System Overview (MD)</a> • 
+        <a href="api-reference.md" target="_blank">🔌 API Reference (MD)</a> • 
+        <a href="database-schema.md" target="_blank">🗄️ Database Schema (MD)</a>
+      </p>
+    </footer>
+
+  </div>
+</main>
+
+<!-- Scroll to Top Button -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+  // Initialize Mermaid
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    themeVariables: {
+      primaryColor: '#e0e7ff',
+      primaryTextColor: '#1e293b',
+      primaryBorderColor: '#2563eb',
+      lineColor: '#64748b',
+      secondaryColor: '#f0fdf4',
+      tertiaryColor: '#fef3c7'
+    }
+  });
+
+  // Theme Toggle
+  const themeToggle = document.getElementById('themeToggle');
+  const html = document.documentElement;
+  themeToggle.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', next);
+    themeToggle.textContent = next === 'light' ? '🌙' : '☀️';
+    // Re-render mermaid for theme change
+    location.reload();
+  });
+
+  // Mobile Menu Toggle
+  const menuToggle = document.getElementById('menuToggle');
+  const sidebar = document.getElementById('sidebar');
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+  });
+
+  // Scroll to Top Button Visibility
+  const scrollTop = document.getElementById('scrollTop');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      scrollTop.classList.add('visible');
+    } else {
+      scrollTop.classList.remove('visible');
+    }
+  });
+
+  // Active Sidebar Link on Scroll
+  const sections = document.querySelectorAll('section[id]');
+  const sidebarLinks = document.querySelectorAll('.sidebar-link');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      if (scrollY >= sectionTop - 100) {
+        current = section.getAttribute('id');
+      }
+    });
+    sidebarLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+      }
+    });
+  });
+
+  // Smooth scroll for sidebar links
+  sidebarLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
