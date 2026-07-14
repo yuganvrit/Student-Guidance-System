@@ -6,10 +6,10 @@ class SoftDeleteQuerySet(models.QuerySet):
         # Build update kwargs
         update_kwargs = {'is_deleted': True}
         
-        # # Check if the model has is_active field
-        # field_names = [f.name for f in self.model._meta.get_fields()]
-        # if 'is_active' in field_names:
-        #     update_kwargs['is_active'] = False
+        # Check if the model has is_active field
+        field_names = [f.name for f in self.model._meta.get_fields()]
+        if 'is_active' in field_names:
+            update_kwargs['is_active'] = False
         
         return self.update(**update_kwargs)
 
@@ -19,9 +19,9 @@ class SoftDeleteQuerySet(models.QuerySet):
     def restore(self):
         update_kwargs = {'is_deleted': False}
         
-        # field_names = [f.name for f in self.model._meta.get_fields()]
-        # if 'is_active' in field_names:
-        #     update_kwargs['is_active'] = True
+        field_names = [f.name for f in self.model._meta.get_fields()]
+        if 'is_active' in field_names:
+            update_kwargs['is_active'] = True
         
         return self.update(**update_kwargs)
 
@@ -67,12 +67,12 @@ class BaseModel(models.Model):
 
     def delete(self, *args, **kwargs):
         self.is_deleted = True
-        # if self._has_is_active():
-        #     self.is_active = False
+        if self._has_is_active():
+            self.is_active = False
         self.save()
 
     def restore(self):
         self.is_deleted = False
-        # if self._has_is_active():
-        #     self.is_active = True
+        if self._has_is_active():
+            self.is_active = True
         self.save()
