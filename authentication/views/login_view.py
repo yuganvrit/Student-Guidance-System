@@ -13,11 +13,13 @@ from authentication.serializers.login_serializer import LoginSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from authentication.utils.response_helpers import error_response, success_response
 
 class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data, context={'request':request})
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return error_response(errors=serializer.errors,status_code=400 )
         user = serializer.validated_data['user']
         refresh = RefreshToken.for_user(user)
         data={
@@ -30,4 +32,4 @@ class LoginView(APIView):
             'access':str(refresh.access_token)
         }
         
-        return Response(data, status=status.HTTP_200_OK)
+        return success_response(message="Successfully logged in" ,data=data, status_code=200)

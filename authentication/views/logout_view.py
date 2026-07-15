@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
 from rest_framework import status
+from authentication.utils.response_helpers import error_response, success_response
 
 class LogoutView(APIView):
     def post(self, request):
@@ -10,7 +11,7 @@ class LogoutView(APIView):
             if refresh:
                 token = RefreshToken(refresh)
                 token.blacklist()
-                return Response({'message':'successfully logged out'}, status=status.HTTP_204_NO_CONTENT)
-            return Response({'error':'token required'}, status=status.HTTP_400_BAD_REQUEST)
+                return success_response(message='successfully logged out', status_code=204)
+            return error_response(message='token required', status_code=400)
         except Exception as e:
-            return Response({'error':str(e)}, status=status.HTTP_403_FORBIDDEN)
+            return error_response(errors=str(e), status_code=403)
