@@ -18,8 +18,8 @@ class Course(BaseModel):
         ('advanced', 'Advanced')
     )
     
-    
     title = models.CharField(max_length=50)
+    prefix = models.CharField(max_length=20)
     description = models.CharField(max_length=200)
     categories = models.ManyToManyField(CourseCategory, related_name="courses")
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
@@ -42,7 +42,7 @@ class CourseBatch(BaseModel):
         ('completed', 'Completed'),
     )
     
-    batch_code = models.CharField(max_length=15, unique=True)
+    batch_code = models.CharField(max_length=15, unique=True, null=True)
     course = models.ForeignKey(Course,on_delete=models.CASCADE, related_name='batches' )
     status=models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     start_date = models.DateField(null=True, blank=True)
@@ -50,6 +50,15 @@ class CourseBatch(BaseModel):
     max_seats= models.PositiveIntegerField(default=20)
     current_enrollments=models.PositiveIntegerField(default=0)
     schedule = models.JSONField(default=dict)
+    
+    
+    def save(self, *args, **kwargs):
+        if not self.batch_code:
+            count = Course.objects.filter(course=self.course).count()
+            prefix = self.course.prefix
+            self.batch_code = f'{prefix}-{count+1}'
+            return super().save(*args, **kwargs)
+        
     
     @property
     def available_seats(self):

@@ -1,12 +1,23 @@
 from rest_framework import serializers
-from course.models import Course
+from course.models import Course, CourseCategory
+from course.serializers.course_category_serializer import GetMiniCourseCategorySerializer
 
-class CourseSerializer(serializers.ModelSerializer):
-    categories = serializers.SlugRelatedField(
+class PostCourseSerializer(serializers.ModelSerializer):
+    categories = serializers.PrimaryKeyRelatedField(
         many=True,
-        read_only=True,
-        slug_field='title'
+        queryset=CourseCategory.objects.all()
     )
+    class Meta:
+        model=Course
+        fields = "__all__"
+
+class GetMiniCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Course
+        fields=['id', 'title']
+        
+class GetCourseSerializer(serializers.ModelSerializer):
+    categories = GetMiniCourseCategorySerializer(read_only=True, many=True)
     class Meta:
         model=Course
         fields = "__all__"
