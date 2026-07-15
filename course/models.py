@@ -20,6 +20,7 @@ class Course(BaseModel):
     
     
     title = models.CharField(max_length=50)
+    prefix = models.CharField(max_length=10)
     description = models.CharField(max_length=200)
     categories = models.ManyToManyField(CourseCategory, related_name="courses")
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
@@ -42,7 +43,7 @@ class CourseBatch(BaseModel):
         ('completed', 'Completed'),
     )
     
-    batch_code = models.CharField(max_length=15, unique=True)
+    batch_code = models.CharField(max_length=15, unique=True,null=True,blank=True)
     course = models.ForeignKey(Course,on_delete=models.CASCADE, related_name='batches' )
     status=models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     start_date = models.DateField(null=True, blank=True)
@@ -57,3 +58,11 @@ class CourseBatch(BaseModel):
 
     def __str__(self):
         return f"{self.course.title} - Batch {self.batch_number}"
+    
+
+    def save(self, *args, **kwargs):
+        if not self.batch_code:
+            count = CourseBatch.objects.filter(course=self.course).count()
+            course_prefix = self.course.prefix
+            self.batch_code = f'{course_prefix}-{count+1}'
+        return super().save(*args, **kwargs)

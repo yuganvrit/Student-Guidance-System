@@ -8,7 +8,8 @@ class User(AbstractUser,BaseModel):
     ROLE_CHOICES = (
         ('super_admin','Super Admin'),
         ('student', 'Student'),      
-        ('staff', 'Staff'),                      
+        ('mentor', 'Mentor'),
+        ('concenllor','Concenllor')                      
     )
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
