@@ -19,7 +19,7 @@ class Enrollment(BaseModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["student", "course_batch"],
+                fields=["student", "batch"],
                 condition=models.Q(is_deleted=False),
                 name="unique_active_enrollment"
             )
