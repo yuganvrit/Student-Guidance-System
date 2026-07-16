@@ -43,7 +43,7 @@ class CourseBatch(BaseModel):
         ('completed', 'Completed'),
     )
     
-    batch_code = models.CharField(max_length=15, unique=True, null=True)
+    batch_code = models.CharField(max_length=15, null=True)
     course = models.ForeignKey(Course,on_delete=models.CASCADE, related_name='batches' )
     status=models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
     start_date = models.DateField(null=True, blank=True)
@@ -52,6 +52,15 @@ class CourseBatch(BaseModel):
     current_enrollments=models.PositiveIntegerField(default=0)
     schedule = models.JSONField(default=dict)
     mentor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'role': 'mentor'}, related_name='mentored_batches')
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['batch_code'],
+                condition = models.Q(is_deleted=False),
+                name='unique_batch_code_not_deleted'
+            )
+        ]
     
     def save(self, *args, **kwargs):
         if not self.batch_code:
