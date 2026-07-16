@@ -9,13 +9,13 @@ class User(AbstractUser,BaseModel):
         ('super_admin','Super Admin'),
         ('student', 'Student'),      
         ('mentor', 'Mentor'),
-        ('concenllor','Concenllor')                      
+        ('counselor','Counselor')                      
     )
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
     first_name = models.CharField(max_length=150)
     last_name = models.CharField(max_length=150)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='staff')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
     last_login = models.DateTimeField(blank=True, null=True)
 
     USERNAME_FIELD = 'email'

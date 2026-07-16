@@ -1,5 +1,6 @@
 from django.db import models
 from base.models import BaseModel
+from authentication.models import User
 
 
 class CourseCategory(BaseModel):
@@ -44,20 +45,20 @@ class CourseBatch(BaseModel):
     
     batch_code = models.CharField(max_length=15, unique=True, null=True)
     course = models.ForeignKey(Course,on_delete=models.CASCADE, related_name='batches' )
-    status=models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    status=models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
     start_date = models.DateField(null=True, blank=True)
     end_date=models.DateField(null=True, blank=True)
     max_seats= models.PositiveIntegerField(default=20)
     current_enrollments=models.PositiveIntegerField(default=0)
     schedule = models.JSONField(default=dict)
-    
+    mentor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, limit_choices_to={'role': 'mentor'}, related_name='mentored_batches')
     
     def save(self, *args, **kwargs):
         if not self.batch_code:
-            count = Course.objects.filter(course=self.course).count()
+            count = CourseBatch.objects.filter(course=self.course).count()
             prefix = self.course.prefix
             self.batch_code = f'{prefix}-{count+1}'
-            return super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
         
     
     @property
@@ -65,12 +66,4 @@ class CourseBatch(BaseModel):
         return self.max_seats - self.current_enrollments
 
     def __str__(self):
-        return f"{self.course.title} - Batch {self.batch_number}"
-    
-
-    def save(self, *args, **kwargs):
-        if not self.batch_code:
-            count = CourseBatch.objects.filter(course=self.course).count()
-            course_prefix = self.course.prefix
-            self.batch_code = f'{course_prefix}-{count+1}'
-        return super().save(*args, **kwargs)
+        return self.batch_code

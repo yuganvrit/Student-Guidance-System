@@ -7,16 +7,22 @@
 ## Entity Relationship Diagram
 
 ```mermaid
-erDiagram
+    erDiagram
     USER ||--o| PROFILE : has
+    USER ||--o| STUDENT_PROFILE : extends
+
     USER ||--o{ STUDENT_ASSESSMENT : takes
-    USER ||--o{ COUNSELING_SESSION : requests
+    USER ||--o{ COUNSELING_SESSION : attends
     USER ||--o{ ENROLLMENT : enrolls
     USER ||--o{ COURSE_RECOMMENDATION : receives
-    USER ||--o{ STUDENT_PROFILE : extends
+
+    USER ||--o{ STUDENT_COUNSELOR : student
+    USER ||--o{ STUDENT_COUNSELOR : counselor
 
     COURSE_CATEGORY ||--o{ COURSE : contains
     COURSE ||--o{ COURSE_BATCH : has
+    USER ||--o{ COURSE_BATCH : mentors
+
     COURSE ||--o{ COURSE_RECOMMENDATION : recommended_in
     COURSE ||--o{ COUNSELING_SESSION : discussed_in
 
@@ -63,6 +69,14 @@ erDiagram
         string location
     }
 
+    STUDENT_COUNSELOR {
+        int id PK
+        int student_id FK
+        int counselor_id FK
+        datetime assigned_at
+        boolean is_active
+    }
+
     COURSE_CATEGORY {
         int id PK
         string name
@@ -82,7 +96,6 @@ erDiagram
         string level
         decimal price
         string currency
-        string instructor_name
         json prerequisites
         json skills_gained
         json career_opportunities
@@ -96,6 +109,7 @@ erDiagram
     COURSE_BATCH {
         int id PK
         int course_id FK
+        int mentor_id FK
         date start_date
         date end_date
         int max_seats

@@ -5,7 +5,7 @@ from course.serializers.course_category_serializer import CourseCategorySerializ
 
 
 
-class CourseCategoryViewset(viewsets.ModelViewSet):
+class CourseCategoryView(viewsets.ModelViewSet):
     queryset = CourseCategory.objects.all()
     serializer_class = CourseCategorySerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
