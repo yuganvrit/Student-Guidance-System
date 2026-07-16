@@ -7,7 +7,7 @@
 ## Entity Relationship Diagram
 
 ```mermaid
-    erDiagram
+erDiagram
     USER ||--o| PROFILE : has
     USER ||--o| STUDENT_PROFILE : extends
 

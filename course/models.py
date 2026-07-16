@@ -20,7 +20,7 @@ class Course(BaseModel):
     )
     
     title = models.CharField(max_length=50)
-    prefix = models.CharField(max_length=20)
+    prefix = models.CharField(max_length=20, blank=True, null=True)
     description = models.CharField(max_length=200)
     categories = models.ManyToManyField(CourseCategory, related_name="courses")
     level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='beginner')
