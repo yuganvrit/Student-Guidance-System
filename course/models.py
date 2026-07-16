@@ -66,3 +66,11 @@ class CourseBatch(BaseModel):
 
     def __str__(self):
         return f"{self.course.title} - Batch {self.batch_number}"
+    
+
+    def save(self, *args, **kwargs):
+        if not self.batch_code:
+            count = CourseBatch.objects.filter(course=self.course).count()
+            course_prefix = self.course.prefix
+            self.batch_code = f'{course_prefix}-{count+1}'
+        return super().save(*args, **kwargs)

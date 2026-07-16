@@ -8,7 +8,6 @@ class CourseCategorySerializer(serializers.ModelSerializer):
         model = CourseCategory
         fields = '__all__'
 
-
 class GetMiniCourseCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseCategory
