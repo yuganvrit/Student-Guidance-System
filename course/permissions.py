@@ -6,10 +6,20 @@ class IsMentor(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user.role == 'student'
+        return request.user.role == 'mentor'
     
         
     def has_object_permission(self, request, view, obj):
-        print(type(obj))
-        # Instance must have an attribute named `owner`.
         return obj.mentor == request.user
+    
+class AdminOnlyPost(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return request.user.is_staff
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return request.user.is_staff

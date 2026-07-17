@@ -10,29 +10,37 @@
 erDiagram
     USER ||--o| PROFILE : has
     USER ||--o| STUDENT_PROFILE : extends
-
     USER ||--o{ STUDENT_ASSESSMENT : takes
-    USER ||--o{ COUNSELING_SESSION : attends
     USER ||--o{ ENROLLMENT : enrolls
     USER ||--o{ COURSE_RECOMMENDATION : receives
+    USER ||--o{ STUDENT_COUNSELOR : "assigned as student"
+    USER ||--o{ STUDENT_COUNSELOR : "assigned as counselor"
+    USER ||--o{ COURSE_BATCH : mentors
 
-    USER ||--o{ STUDENT_COUNSELOR : student
-    USER ||--o{ STUDENT_COUNSELOR : counselor
+    PROFILE ||--|| USER : belongs_to
+    STUDENT_PROFILE ||--|| USER : belongs_to
+
+    SKILL }o--o{ STUDENT_PROFILE : possessed_by
+    SKILL }o--o{ COURSE : taught_in
 
     COURSE_CATEGORY ||--o{ COURSE : contains
     COURSE ||--o{ COURSE_BATCH : has
-    USER ||--o{ COURSE_BATCH : mentors
-
+    COURSE }o--o{ COURSE : has_prerequisite
     COURSE ||--o{ COURSE_RECOMMENDATION : recommended_in
-    COURSE ||--o{ COUNSELING_SESSION : discussed_in
+    COURSE ||--o{ STUDENT_ASSESSMENT_COURSES : recommended_by
+    COURSE ||--o{ COUNSELING_SESSION_COURSES : discussed_in
 
     COURSE_BATCH ||--o{ ENROLLMENT : enrolls
     ENROLLMENT ||--o| PROGRESS_TRACKER : tracks
 
-    ASSESSMENT ||--o{ STUDENT_ASSESSMENT : taken_as
-    STUDENT_ASSESSMENT ||--o{ COURSE : recommends
+    STUDENT_COUNSELOR ||--o{ COUNSELING_SESSION : facilitates
+    COUNSELING_SESSION ||--o{ COUNSELING_SESSION_COURSES : discusses
 
-    COUNSELING_SESSION ||--o{ COURSE : recommends
+    ASSESSMENT ||--o{ STUDENT_ASSESSMENT : taken_as
+    STUDENT_ASSESSMENT ||--o{ STUDENT_ASSESSMENT_COURSES : recommends
+    STUDENT_ASSESSMENT ||--o{ COURSE_RECOMMENDATION : sources
+
+    COUNSELING_SESSION ||--o{ COURSE_RECOMMENDATION : sources
 
     USER {
         int id PK
@@ -65,8 +73,14 @@ erDiagram
         string preferred_learning_mode
         int available_hours_per_week
         string career_goal
-        json current_skills
         string location
+    }
+
+    SKILL {
+        int id PK
+        string name UK
+        string slug UK
+        string category
     }
 
     STUDENT_COUNSELOR {
@@ -96,8 +110,6 @@ erDiagram
         string level
         decimal price
         string currency
-        json prerequisites
-        json skills_gained
         json career_opportunities
         json syllabus
         boolean is_active
@@ -153,8 +165,7 @@ erDiagram
 
     COUNSELING_SESSION {
         int id PK
-        int student_id FK
-        int counselor_id FK
+        int student_counselor_id FK
         datetime scheduled_at
         string status
         text notes
@@ -176,6 +187,8 @@ erDiagram
         json reason
         boolean is_accepted
         datetime accepted_at
+        int source_assessment_id FK "Nullable"
+        int source_session_id FK "Nullable"
         datetime created_at
         datetime updated_at
         boolean is_deleted
@@ -206,11 +219,9 @@ erDiagram
 ```
 
 ---
-
 ## Model Descriptions
 
 ### 1. User (`authentication.User`)
-
 Custom user model extending Django's `AbstractUser` and `BaseModel`.
 
 | Field | Type | Constraints | Description |
@@ -222,7 +233,7 @@ Custom user model extending Django's `AbstractUser` and `BaseModel`.
 | `first_name` | CharField(150) | Required | First name |
 | `last_name` | CharField(150) | Required | Last name |
 | `phone` | CharField(20) | Unique (when not deleted) | Nepal phone format |
-| `role` | CharField(20) | Choices | `super_admin`, `student`, `staff` |
+| `role` | CharField(20) | Choices | `super_admin`, `student`, `staff`, `mentor` |
 | `last_login` | DateTimeField | Nullable | Last login timestamp |
 | `created_at` | DateTimeField | Auto | Creation timestamp |
 | `updated_at` | DateTimeField | Auto | Last update timestamp |
@@ -239,7 +250,6 @@ Custom user model extending Django's `AbstractUser` and `BaseModel`.
 ---
 
 ### 2. Profile (`authentication.Profile`)
-
 Extended user profile information.
 
 | Field | Type | Constraints | Description |
@@ -254,7 +264,6 @@ Extended user profile information.
 ---
 
 ### 3. StudentProfile (`counseling.StudentProfile`)
-
 Extended profile specifically for counseling and recommendations.
 
 | Field | Type | Constraints | Description |
@@ -265,21 +274,47 @@ Extended profile specifically for counseling and recommendations.
 | `preferred_learning_mode` | CharField | Choices | `online`, `offline`, `hybrid` |
 | `available_hours_per_week` | PositiveIntegerField | — | Study time availability |
 | `career_goal` | CharField | — | Target career (e.g., "Full Stack Developer") |
-| `current_skills` | JSONField | Default=list | Skills already known |
 | `location` | CharField | — | City/region in Nepal |
 | `created_at` | DateTimeField | Auto | Creation timestamp |
 | `updated_at` | DateTimeField | Auto | Last update timestamp |
 | `is_deleted` | BooleanField | Default=False | Soft-delete flag |
 
-**Example `current_skills` JSON**:
-```json
-["HTML", "CSS", "Basic JavaScript", "Python Basics"]
-```
+**Many-to-Many**: `skills` → `Skill` (Replaces previous JSON field for better querying and recommendation matching)
 
 ---
 
-### 4. CourseCategory (`courses.CourseCategory`)
+### 4. StudentCounselor (`counseling.StudentCounselor`)
+Mapping table to track which counselor is assigned to which student over time.
 
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| `id` | AutoField | PK | Unique identifier |
+| `student` | ForeignKey | FK → User | The student user |
+| `counselor` | ForeignKey | FK → User | The staff/counselor user |
+| `assigned_at` | DateTimeField | Auto | When the assignment was made |
+| `is_active` | BooleanField | Default=True | Is this the current active counselor? |
+| `created_at` | DateTimeField | Auto | Creation timestamp |
+| `updated_at` | DateTimeField | Auto | Last update timestamp |
+| `is_deleted` | BooleanField | Default=False | Soft-delete flag |
+
+---
+
+### 5. Skill (`courses.Skill`)
+Master table for skills to allow relational mapping and efficient querying (replaces JSON fields).
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| `id` | AutoField | PK | Unique identifier |
+| `name` | CharField(100) | Unique | Skill name (e.g., "Python", "Communication") |
+| `slug` | SlugField | Unique | URL-friendly identifier |
+| `category` | CharField(50) | — | e.g., `technical`, `soft_skill` |
+| `created_at` | DateTimeField | Auto | Creation timestamp |
+| `updated_at` | DateTimeField | Auto | Last update timestamp |
+| `is_deleted` | BooleanField | Default=False | Soft-delete flag |
+
+---
+
+### 6. CourseCategory (`courses.CourseCategory`)
 Categories for organizing courses.
 
 | Field | Type | Constraints | Description |
@@ -305,8 +340,7 @@ Categories for organizing courses.
 
 ---
 
-### 5. Course (`courses.Course`)
-
+### 7. Course (`courses.Course`)
 Individual course offerings.
 
 | Field | Type | Constraints | Description |
@@ -319,15 +353,16 @@ Individual course offerings.
 | `level` | CharField(20) | Choices | `beginner`, `intermediate`, `advanced` |
 | `price` | DecimalField | Max digits 10, 2 decimals | Course fee in NPR |
 | `currency` | CharField(3) | Default=NPR | Currency code |
-| `instructor_name` | CharField(200) | — | Instructor display name |
-| `prerequisites` | JSONField | Default=list | Required prior knowledge |
-| `skills_gained` | JSONField | Default=list | Skills learned on completion |
 | `career_opportunities` | JSONField | Default=list | Job roles after course |
 | `syllabus` | JSONField | Default=list | Weekly curriculum breakdown |
 | `is_active` | BooleanField | Default=True | Visibility flag |
 | `created_at` | DateTimeField | Auto | Creation timestamp |
 | `updated_at` | DateTimeField | Auto | Last update timestamp |
 | `is_deleted` | BooleanField | Default=False | Soft-delete flag |
+
+**Many-to-Many Relationships**:
+- `skills_gained` → `Skill` (Replaces previous JSON field)
+- `prerequisites` → `Course` (Self-referential M2M, replaces JSON field to ensure referential integrity)
 
 **Example `syllabus` JSON**:
 ```json
@@ -339,14 +374,14 @@ Individual course offerings.
 
 ---
 
-### 6. CourseBatch (`courses.CourseBatch`)
-
+### 8. CourseBatch (`courses.CourseBatch`)
 Scheduled instances of a course.
 
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|
 | `id` | AutoField | PK | Unique identifier |
 | `course` | ForeignKey | FK → Course | Parent course |
+| `mentor` | ForeignKey | FK → User | Instructor for this batch |
 | `start_date` | DateField | — | Batch start date |
 | `end_date` | DateField | — | Batch end date |
 | `max_seats` | PositiveIntegerField | — | Maximum students |
@@ -368,8 +403,7 @@ Scheduled instances of a course.
 
 ---
 
-### 7. Assessment (`assessment.Assessment`)
-
+### 9. Assessment (`assessment.Assessment`)
 Skill/interest quizzes for students.
 
 | Field | Type | Constraints | Description |
@@ -414,8 +448,7 @@ Skill/interest quizzes for students.
 
 ---
 
-### 8. StudentAssessment (`assessment.StudentAssessment`)
-
+### 10. StudentAssessment (`assessment.StudentAssessment`)
 A student's completed assessment with results.
 
 | Field | Type | Constraints | Description |
@@ -430,7 +463,7 @@ A student's completed assessment with results.
 | `updated_at` | DateTimeField | Auto | Last update timestamp |
 | `is_deleted` | BooleanField | Default=False | Soft-delete flag |
 
-**Many-to-Many**: `recommended_courses` → `Course`
+**Many-to-Many**: `recommended_courses` → `Course` (via `StudentAssessmentCourses` junction table)
 
 **Example `answers` JSON**:
 ```json
@@ -442,15 +475,13 @@ A student's completed assessment with results.
 
 ---
 
-### 9. CounselingSession (`counseling.CounselingSession`)
-
+### 11. CounselingSession (`counseling.CounselingSession`)
 Scheduled counseling appointments.
 
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|
 | `id` | AutoField | PK | Unique identifier |
-| `student` | ForeignKey | FK → User | Requesting student |
-| `counselor` | ForeignKey | FK → User, Nullable | Assigned staff |
+| `student_counselor` | ForeignKey | FK → StudentCounselor | Linked mapping of student & counselor |
 | `scheduled_at` | DateTimeField | — | Appointment date/time |
 | `status` | CharField(20) | Choices | `scheduled`, `completed`, `cancelled` |
 | `notes` | TextField | Blank | Counselor notes |
@@ -458,13 +489,12 @@ Scheduled counseling appointments.
 | `updated_at` | DateTimeField | Auto | Last update timestamp |
 | `is_deleted` | BooleanField | Default=False | Soft-delete flag |
 
-**Many-to-Many**: `recommended_courses` → `Course`
+**Many-to-Many**: `recommended_courses` → `Course` (via `CounselingSessionCourses` junction table)
 
 ---
 
-### 10. CourseRecommendation (`counseling.CourseRecommendation`)
-
-AI-generated course suggestions for students.
+### 12. CourseRecommendation (`counseling.CourseRecommendation`)
+Rule-based or AI-generated course suggestions for students.
 
 | Field | Type | Constraints | Description |
 |-------|------|-------------|-------------|
@@ -475,6 +505,8 @@ AI-generated course suggestions for students.
 | `reason` | JSONField | — | Why this course was recommended |
 | `is_accepted` | BooleanField | Default=False | Did student accept? |
 | `accepted_at` | DateTimeField | Nullable | When accepted |
+| `source_assessment` | ForeignKey | FK → StudentAssessment, Nullable | Traceability: Recommended because of this assessment |
+| `source_session` | ForeignKey | FK → CounselingSession, Nullable | Traceability: Recommended during this session |
 | `created_at` | DateTimeField | Auto | Creation timestamp |
 | `updated_at` | DateTimeField | Auto | Last update timestamp |
 | `is_deleted` | BooleanField | Default=False | Soft-delete flag |
@@ -491,8 +523,7 @@ AI-generated course suggestions for students.
 
 ---
 
-### 11. Enrollment (`enrollment.Enrollment`)
-
+### 13. Enrollment (`enrollment.Enrollment`)
 Student enrollment in a course batch.
 
 | Field | Type | Constraints | Description |
@@ -509,8 +540,7 @@ Student enrollment in a course batch.
 
 ---
 
-### 12. ProgressTracker (`enrollment.ProgressTracker`)
-
+### 14. ProgressTracker (`enrollment.ProgressTracker`)
 Learning progress for an enrollment.
 
 | Field | Type | Constraints | Description |
@@ -553,18 +583,24 @@ Learning progress for an enrollment.
 | User | has | Profile | One-to-One |
 | User | has | StudentProfile | One-to-One |
 | User | takes | StudentAssessment | One-to-Many |
-| User | requests | CounselingSession | One-to-Many |
+| User | requests | CounselingSession | One-to-Many (via StudentCounselor) |
 | User | enrolls | Enrollment | One-to-Many |
 | User | receives | CourseRecommendation | One-to-Many |
+| User | mentors | CourseBatch | One-to-Many |
+| StudentProfile | possesses | Skill | Many-to-Many |
 | CourseCategory | contains | Course | One-to-Many |
 | Course | has | CourseBatch | One-to-Many |
+| Course | has_prerequisite | Course | Many-to-Many (Self-referential) |
+| Course | taught_in | Skill | Many-to-Many |
 | Course | recommended_in | CourseRecommendation | One-to-Many |
 | Course | discussed_in | CounselingSession | Many-to-Many |
 | Course | recommended_by | StudentAssessment | Many-to-Many |
 | CourseBatch | enrolls | Enrollment | One-to-Many |
 | Enrollment | tracks | ProgressTracker | One-to-One |
 | Assessment | taken_as | StudentAssessment | One-to-Many |
-| CounselingSession | recommends | Course | Many-to-Many |
+| StudentCounselor | facilitates | CounselingSession | One-to-Many |
+| StudentAssessment | sources | CourseRecommendation | One-to-Many |
+| CounselingSession | sources | CourseRecommendation | One-to-Many |
 
 ---
 
@@ -614,13 +650,17 @@ All models extend `BaseModel` which implements soft-delete:
    - `score` calculated automatically on submission
 
 3. **Counseling Constraints**:
-   - Only staff users can be assigned as `counselor`
+   - Only staff users can be assigned as `counselor` in `StudentCounselor`
    - `scheduled_at` must be in the future when created
 
 4. **Recommendation Constraints**:
    - `match_score` auto-calculated (0-100)
    - Once `is_accepted=True`, cannot be un-accepted
 
+5. **Prerequisite Constraints**:
+   - A course cannot be a prerequisite of itself (prevents infinite loops in self-referential M2M).
+
 ---
 
-*Document Version: 1.0 | Last Updated: 2026-07-14*
+*Document Version: 1.1 | Last Updated: 2026-07-14*
+```
