@@ -24,6 +24,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('authentication.urls')),
     path('api/', include('course.urls')),
+    path('api/', include('enrollment.urls')),
+    path('api/', include('counselling.urls')),
+    path('api/', include('skill.urls')),
+    path('api/', include('career.urls'))
 ]
 
 

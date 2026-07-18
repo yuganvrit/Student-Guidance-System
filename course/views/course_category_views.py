@@ -2,7 +2,7 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from course.models import CourseCategory
 from course.serializers.course_category_serializer import CourseCategorySerializer
-from course.permissions import AdminOnlyPost
+from utils.permissions import AdminOnlyPost
 
 
 class CourseCategoryView(viewsets.ModelViewSet):

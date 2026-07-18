@@ -1,13 +1,13 @@
 from rest_framework.views import APIView
-from authentication.serializers.register_serializer import RegisterSerializer
-from rest_framework.permissions import AllowAny
-from authentication.utils.response_helpers import error_response, success_response
+from authentication.serializers.mentor_register_serializer import MentorRegisterSerializer
+from rest_framework.permissions import IsAdminUser
+from utils.response_helpers import error_response, success_response
 
-class RegisterView(APIView):
-    permission_classes=[AllowAny]
+class MentorRegisterView(APIView):
+    permission_classes=[IsAdminUser]
 
     def post(self, request):
-        serializer = RegisterSerializer(data = request.data)
+        serializer = MentorRegisterSerializer(data = request.data)
         if not serializer.is_valid():
             return error_response(message="Registration failed", errors=serializer.errors, status_code=400)
         serializer.save()

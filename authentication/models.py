@@ -88,8 +88,7 @@ class StudentProfile(BaseProfile):
         blank=True,
         null=True
     )
-    career_goals = models.CharField(max_length=100, blank=True, null=True)
-    
+    career = models.ForeignKey('career.Career', on_delete=models.SET_NULL, blank=True, null=True, related_name='student_profiles')
 
     def __str__(self):
         return f"Profile of {self.student.username}"
@@ -117,6 +116,7 @@ class MentorProfile(BaseProfile):
     )
     expertise_area = models.CharField(max_length=100, blank=True, null=True)
     years_of_experience = models.PositiveIntegerField(blank=True, null=True)
+    skills = models.ManyToManyField('skill.Skill', related_name='mentors_skill')
     
     def __str__(self):
         return f"Profile of {self.mentor.username}"

@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from course.models import Course
 from course.serializers.course_serializer import PostCourseSerializer, GetCourseSerializer
-from course.permissions import AdminOnlyPost
+from utils.permissions import AdminOnlyPost
 from course.paginations import CoursePagination
 from enrollment.paginations import CursorCustomPagination
 
@@ -14,4 +14,5 @@ class CourseView(viewsets.ModelViewSet):
         if self.request.method == 'GET':
             return GetCourseSerializer
         return PostCourseSerializer
+    
     
