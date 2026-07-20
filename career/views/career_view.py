@@ -6,6 +6,7 @@ from utils.permissions import AdminOnlyPost
 class CareerViewSet(viewsets.ModelViewSet):
     queryset = Career.objects.all()
     permission_classes = [AdminOnlyPost]
+    ordering=['-created_at']
 
     def get_serializer_class(self):
         if self.request.method in ['GET']:

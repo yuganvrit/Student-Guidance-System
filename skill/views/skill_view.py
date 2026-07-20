@@ -4,6 +4,7 @@ from skill.serializers.skill_serializer import SkillDetailSerializer, SkillCreat
 
 class SkillViewSet(viewsets.ModelViewSet):
     queryset = Skill.objects.all()
+    ordering=['-created_at']
     
     def get_serializer_class(self):
         if self.request.method in ['POST', 'PUT', 'PATCH']:

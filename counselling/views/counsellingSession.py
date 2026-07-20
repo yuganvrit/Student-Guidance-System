@@ -6,6 +6,7 @@ from counselling.serializers.CounsellingSessionSerializer import CounselingSessi
 class CounselingSessionViewSet(viewsets.ModelViewSet):
     queryset = CounselingSession.objects.all().select_related('student_counselor')
     permission_classes = []
+    ordering=['-created_at']
 
     def get_serializer_class(self):
         if self.request.method in ['GET']:

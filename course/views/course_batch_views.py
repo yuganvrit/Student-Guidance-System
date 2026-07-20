@@ -9,5 +9,5 @@ class CourseBatchView(viewsets.ModelViewSet):
      permission_classes = [AdminOnlyPost]
      serializer_class = CourseBatchSerializer
      queryset = CourseBatch.objects.all()
-
+     ordering=['-created_at']
      

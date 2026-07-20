@@ -1,0 +1,365 @@
+==============================================================================
+STUDENT GUIDANCE SYSTEM — THE TWO SCENARIOS EXPLAINED
+What Happens After the Career Aptitude Test
+================================================================================
+
+SCENARIO SETUP:
+  Ravi (student) selects "Data Scientist" as his career goal.
+  System gives him a CAREER APTITUDE TEST.
+
+  QUESTION: What happens if he PASSES? What happens if he FAILS?
+
+================================================================================
+SCENARIO A: RAVI PASSES THE APTITUDE TEST (Score >= 60)
+================================================================================
+
+STEP 1: SYSTEM CONFIRMS FEASIBILITY
+------------------------------------
+
+System message:
+  "Congratulations! Your aptitude test shows you have the right mindset
+   for Data Science. Your logical reasoning and problem-solving skills
+   are strong."
+
+What happens in the database:
+  STUDENT_ASSESSMENT:
+    student_id: 42 (Ravi)
+    assessment_id: 1 (Data Science Aptitude Test)
+    score: 75
+    status: "completed"
+    has_passed(): TRUE
+
+What happens next:
+  → Move to SKILL PLACEMENT TEST
+
+------------------------------------------------------------------------------
+STEP 2: SKILL PLACEMENT TEST (Type 2 Assessment)
+-------------------------------------------------
+
+System creates a test to check WHAT Ravi already knows:
+
+  ASSESSMENT:
+    title: "Data Science Skill Placement"
+    assessment_type: "course_placement"
+    course_id: NULL (not tied to one course — tests multiple skills)
+
+  ASSESSMENT_SKILL mapping:
+    Python: 25%
+    Statistics: 25%
+    SQL: 25%
+    Machine Learning: 25%
+
+Ravi takes the test.
+
+Results:
+  Python: 80% (strong)
+  Statistics: 20% (weak)
+  SQL: 10% (weak)
+  Machine Learning: 0% (complete beginner)
+
+Overall score: 27.5% (below passing_score of 50)
+
+------------------------------------------------------------------------------
+STEP 3: SKILL GAP ANALYSIS
+--------------------------
+
+System identifies weak skills (threshold = 50%):
+  Weak: Statistics (20%), SQL (10%), Machine Learning (0%)
+  Strong: Python (80%)
+
+System calculates: Ravi is missing 3 out of 4 critical skills.
+
+------------------------------------------------------------------------------
+STEP 4: COURSE RECOMMENDATIONS (Rule-Based)
+-------------------------------------------
+
+System generates recommendations:
+
+  COURSE_RECOMMENDATION #1:
+    course: "Machine Learning Basics"
+    match_score: 100 (because score is 0% — highest gap)
+    reason: "You have no ML experience. This is your starting point."
+    source_assessment_id: 2
+
+  COURSE_RECOMMENDATION #2:
+    course: "SQL Fundamentals"
+    match_score: 90 (because score is 10%)
+    reason: "Your SQL score is 10%. Start here before advanced topics."
+    source_assessment_id: 2
+
+  COURSE_RECOMMENDATION #3:
+    course: "Statistics for Data Science"
+    match_score: 80 (because score is 20%)
+    reason: "Your Statistics score is 20%. This course builds foundation."
+    source_assessment_id: 2
+
+Ravi sees on dashboard:
+  "Based on your Data Science Skill Placement, we recommend:"
+    1. ML Basics (100% match) — START HERE
+    2. SQL Fundamentals (90% match)
+    3. Statistics for Data Science (80% match)
+
+------------------------------------------------------------------------------
+STEP 5: COUNSELOR REVIEW (Optional but Recommended)
+---------------------------------------------------
+
+System assigns Mrs. Sharma as counselor:
+  STUDENT_COUNSELOR:
+    student_id: 42
+    counselor_id: 7 (Mrs. Sharma)
+
+Mrs. Sharma reviews:
+  - Aptitude: 75% (good)
+  - Skill placement: 27.5% (needs work)
+  - Career goal: Data Scientist
+
+She schedules a session:
+  COUNSELING_SESSION:
+    scheduled_at: 2026-07-20 10:00 AM
+
+In session:
+  Mrs. Sharma: "You have the aptitude, but your skill gap is large.
+                I recommend this learning path:"
+                  1. ML Basics (3 months)
+                  2. SQL Fundamentals (2 months)
+                  3. Statistics (2 months)
+                  4. Advanced ML (3 months)
+                "Total: 10 months. Are you ready?"
+
+Ravi: "Yes, I'll start with ML Basics."
+
+------------------------------------------------------------------------------
+STEP 6: ENROLLMENT
+------------------
+
+Ravi accepts recommendation #1:
+  COURSE_RECOMMENDATION (updated):
+    is_accepted: true
+    accepted_at: 2026-07-20
+
+System creates:
+  ENROLLMENT:
+    student_id: 42
+    course_batch_id: 5 (ML Basics - July 2026 Batch)
+    status: "active"
+    payment_status: "paid"
+    enrolled_at: 2026-07-20
+
+Mentor assigned:
+  COURSE_BATCH:
+    mentor_id: 12 (Mr. Patel)
+
+------------------------------------------------------------------------------
+STEP 7: LEARNING & PROGRESS
+---------------------------
+
+Ravi attends ML Basics classes.
+
+After each module, he takes a progress quiz:
+  ASSESSMENT:
+    assessment_type: "course_quiz"
+    assessment_phase: "progress"
+    course_id: 12 (ML Basics)
+
+Module 1 quiz: 85% → PROGRESS_TRACKER: 25% complete
+Module 2 quiz: 75% → PROGRESS_TRACKER: 50% complete
+Module 3 quiz: 60% → PROGRESS_TRACKER: 75% complete
+
+------------------------------------------------------------------------------
+STEP 8: FINAL EXAM
+------------------
+
+After all modules:
+  ASSESSMENT:
+    assessment_type: "course_final"
+    assessment_phase: "final"
+    course_id: 12 (ML Basics)
+    passing_score: 70
+
+Ravi scores: 78%
+
+STUDENT_ASSESSMENT:
+  score: 78
+  has_passed(): TRUE
+
+------------------------------------------------------------------------------
+STEP 9: SKILL VERIFICATION
+----------------------------
+
+System updates Ravi's skill profile:
+  STUDENT_SKILL:
+    student_id: 42
+    skill_id: 4 (Machine Learning)
+    proficiency_level: "intermediate"
+    verified: true
+    acquired_at: 2026-09-15
+
+Ravi receives certificate: "Machine Learning Basics — Intermediate Level"
+
+------------------------------------------------------------------------------
+STEP 10: NEXT COURSE
+--------------------
+
+System checks career readiness:
+  Data Scientist requires:
+    Python: ✓ (already had 80%)
+    ML: ✓ (just completed, intermediate)
+    Statistics: ✗ (still pending)
+    SQL: ✗ (still pending)
+
+System recommends next course:
+  "SQL Fundamentals" (from pending recommendations)
+
+Ravi enrolls. The cycle repeats.
+
+When ALL skills are acquired:
+  System marks: CAREER_READY = true
+  Ravi can now apply for Data Scientist roles.
+
+================================================================================
+SCENARIO B: RAVI FAILS THE APTITUDE TEST (Score < 60)
+================================================================================
+
+STEP 1: SYSTEM FLAGS CONCERN
+-----------------------------
+
+System message:
+  "Your aptitude test score is 40%. While you can still pursue Data Science,
+   your strengths appear to be in different areas."
+
+What happens in the database:
+  STUDENT_ASSESSMENT:
+    student_id: 42
+    assessment_id: 1 (Data Science Aptitude Test)
+    score: 40
+    status: "completed"
+    has_passed(): FALSE
+
+------------------------------------------------------------------------------
+STEP 2: SYSTEM SUGGESTS ALTERNATIVE CAREERS
+--------------------------------------------
+
+System analyzes Ravi's aptitude answers:
+  - Logical reasoning: 35% (weak)
+  - Mathematical ability: 30% (weak)
+  - Visual design: 85% (strong)
+  - Communication: 80% (strong)
+  - Creativity: 90% (strong)
+
+System matches against CAREER profiles:
+  Data Scientist: requires logical + math → Match: 32%
+  UI/UX Designer: requires visual + creativity + communication → Match: 85%
+  Digital Marketing: requires communication + creativity → Match: 78%
+  Technical Writer: requires communication + logic → Match: 72%
+
+System presents:
+  "Based on your aptitude profile, these careers may be a better fit:"
+    1. UI/UX Designer (85% match)
+    2. Digital Marketing (78% match)
+    3. Technical Writer (72% match)
+
+  "Your current choice: Data Scientist (32% match)"
+
+------------------------------------------------------------------------------
+STEP 3: RAVI HAS THREE OPTIONS
+------------------------------
+
+OPTION 1: Accept Alternative Career (RECOMMENDED)
+-------------------------------------------------
+Ravi clicks "Explore UI/UX Designer"
+
+System updates:
+  STUDENT_CAREER_GOAL (old):
+    is_active: false
+
+  STUDENT_CAREER_GOAL (new):
+    career_id: 8 (UI/UX Designer)
+    is_active: true
+
+Flow continues:
+  → UI/UX Aptitude Test → If PASS → Skill Placement → Recommendations → Enrollment
+
+This is the HAPPY PATH for failed aptitude.
+
+------------------------------------------------------------------------------
+
+OPTION 2: Ignore Warning and Continue Anyway
+--------------------------------------------
+Ravi says: "I still want Data Science. I know I can do it."
+
+System respects his choice:
+  "Understood. You can still pursue Data Science. Here is your skill
+   placement test. Be prepared — the learning curve will be steep."
+
+Flow continues:
+  → Data Science Skill Placement Test (same as Scenario A Step 2)
+  → BUT system adds a note for counselor:
+      "Student failed aptitude (40%) but insists on Data Science.
+       Monitor closely and provide extra support."
+
+This is the STUBBORN STUDENT path. System allows but warns.
+
+------------------------------------------------------------------------------
+
+OPTION 3: Talk to Counselor First
+----------------------------------
+Ravi says: "I'm confused. I don't know what to choose."
+
+System schedules counseling:
+  COUNSELING_SESSION:
+    student_id: 42
+    counselor_id: 7 (Mrs. Sharma)
+    scheduled_at: 2026-07-19 03:00 PM
+    status: "scheduled"
+
+In session:
+  Mrs. Sharma: "Your aptitude shows you're very creative and visual.
+                Data Science is heavily mathematical. Have you considered
+                UI/UX Design? It combines creativity with technology."
+
+  Ravi: "I didn't know about that. Let me explore it."
+
+  Mrs. Sharma: "I'll send you the UI/UX career profile. Take your time."
+
+After session:
+  Ravi explores UI/UX career page.
+  Ravi decides: "This sounds perfect!"
+  Ravi selects UI/UX as new career goal.
+
+Flow continues:
+  → UI/UX Aptitude Test → If PASS → Skill Placement → Recommendations → Enrollment
+
+This is the GUIDED path. Counselor helps student find the right fit.
+
+================================================================================
+SUMMARY: PASS vs FAIL — SIDE BY SIDE
+================================================================================
+
+| Stage | PASSES Aptitude (>=60) | FAILS Aptitude (<60) |
+|-------|------------------------|----------------------|
+| **Test Result** | Score: 75% | Score: 40% |
+| **System Message** | "You have aptitude!" | "This may not be the best fit." |
+| **Next Step** | Skill Placement Test | Suggest alternative careers |
+| **Student Options** | Only one: continue to skills | Three options: accept alt, ignore, talk to counselor |
+| **If continues** | Normal flow | Stubborn path (with counselor note) |
+| **If accepts alt** | — | Happy path with better-matching career |
+| **If talks to counselor** | — | Guided path to right career |
+| **Database** | STUDENT_ASSESSMENT: has_passed=TRUE | STUDENT_ASSESSMENT: has_passed=FALSE |
+| **Counselor** | Optional review | Strongly recommended |
+| **Outcome** | Skill gap → Course recs → Enrollment | Career match → Skill gap → Course recs → Enrollment |
+
+================================================================================
+THE KEY PRINCIPLE
+================================================================================
+
+The system is ADVISORY, not AUTHORITARIAN.
+
+  • It TESTS to see if the career fits.
+  • It ADVISES if the fit is poor.
+  • It SUGGESTS alternatives that match better.
+  • But it NEVER BLOCKS the student from their choice.
+
+The goal is GUIDANCE, not gatekeeping.
+
+================================================================================
+END OF DOCUMENT

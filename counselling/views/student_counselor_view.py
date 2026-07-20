@@ -6,6 +6,7 @@ from counselling.serializers.student_counselor_serializer import StudentCounselo
 class StudentCounselorViewSet(viewsets.ModelViewSet):
     queryset = StudentCounselor.objects.all()
     permission_classes = []
+    ordering=['-created_at']
 
     def get_serializer_class(self):
         if self.request.method in ['GET']:
