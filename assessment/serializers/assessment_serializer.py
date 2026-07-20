@@ -7,8 +7,8 @@ class AssessmentCreateSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), required=False, allow_null=True)
     class Meta:
         model = Assessment
-        fields = ['title', 'description', 'course', 'passing_score', 'max_attempts', 'assessment_type', 'target_level', 'assessment_phase', 'questions', 'time_minutes', 'is_active']
-        
+        fields = ['id', 'title', 'description', 'course', 'passing_score', 'max_attempts', 'assessment_type', 'target_level', 'assessment_phase', 'questions', 'time_minutes', 'is_active']
+        read_only_fields = ['id']
 class AssessmentReadSerializer(serializers.ModelSerializer):
     course = GetMiniCourseSerializer(read_only=True)
     class Meta:

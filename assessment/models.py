@@ -76,7 +76,7 @@ class StudentAssessment(BaseModel):
         COMPLETED = 'completed', 'Completed'
         ABANDONED = 'abandoned', 'Abandoned'
     
-    student = models.ForeignKey('authentication.User', on_delete=models.CASCADE, related_name='student_assessments')
+    student = models.ForeignKey('authentication.User', on_delete=models.CASCADE, related_name='student_assessments', limit_choices_to={'role': 'student'})
     assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE, related_name='student_assessments')
     answers = models.JSONField(default=dict, blank=True)  # Store answers as a list of dictionaries
     skill_breakdown=models.JSONField(default=dict, blank=True)
@@ -127,7 +127,7 @@ class StudentAssessment(BaseModel):
     
     @property
     def weak_skills(self):
-        threshold=50
+        threshold=60
         weak_skills = []
         for skill_data in self.skill_breakdown.get('skill_scores', []):
             if skill_data.get('score', 0) < threshold:

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from assessment.models import Assessment, StudentAssessment
 from authentication.models import User
-from authentication.serializers.student_register_serializer import StudentProfileReadSerializer
+from authentication.serializers.student_register_serializer import StudentUserMiniSerializer
 from assessment.serializers.assessment_serializer import GetMiniAssessmentSerializer
 
 # ─────────────────────────────────────────────
@@ -102,7 +102,7 @@ class StudentAssessmentReadSerializer(serializers.ModelSerializer):
     """
     Read-only. Shows all results including computed properties.
     """
-    student = StudentProfileReadSerializer(read_only=True)
+    student = StudentUserMiniSerializer(read_only=True)
     assessment = GetMiniAssessmentSerializer(read_only=True)
     
     class Meta:

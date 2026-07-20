@@ -39,17 +39,53 @@ class StudentRegisterSerializer(serializers.ModelSerializer):
         return user
     
     
-class StudentProfileReadSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source='student.id', read_only=True)
+# class StudentProfileReadSerializer(serializers.ModelSerializer):
+#     id = serializers.IntegerField(source='student.id', read_only=True)
+#     full_name = serializers.SerializerMethodField()
+#     career = serializers.StringRelatedField(read_only=True)
+    
+#     class Meta:
+#         model = StudentProfile
+#         fields = ['id', 'full_name', 'education_level', 'preferred_learning_mode', 'career']
+        
+#     def get_full_name(self, obj):
+#         first = obj.student.first_name or ""
+#         last = obj.student.last_name or ""
+#         full = f"{first} {last}".strip()
+#         return full or obj.student.username
+    
+
+class StudentUserMiniSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
-    career = serializers.StringRelatedField(read_only=True)
+    education_level = serializers.SerializerMethodField()
+    preferred_learning_mode = serializers.SerializerMethodField()
+    career = serializers.SerializerMethodField()
     
     class Meta:
-        model = StudentProfile
-        fields = ['id', 'full_name', 'education_level', 'preferred_learning_mode', 'career']
-        
+        model = User
+        fields = ['id', 'username', 'email', 'full_name', 
+                  'education_level', 'preferred_learning_mode', 'career']
+    
     def get_full_name(self, obj):
-        first = obj.student.first_name or ""
-        last = obj.student.last_name or ""
-        full = f"{first} {last}".strip()
-        return full or obj.student.username
+        first = obj.first_name or ""
+        last = obj.last_name or ""
+        return f"{first} {last}".strip() or obj.username
+    
+    def _get_profile(self, obj):
+        try:
+            return obj.student_profile
+        except StudentProfile.DoesNotExist:
+            return None
+    
+    def get_education_level(self, obj):
+        profile = self._get_profile(obj)
+        return profile.education_level if profile else None
+    
+    def get_preferred_learning_mode(self, obj):
+        profile = self._get_profile(obj)
+        return profile.preferred_learning_mode if profile else None
+    
+    def get_career(self, obj):
+        profile = self._get_profile(obj)
+        return str(profile.career) if profile and profile.career else None
+

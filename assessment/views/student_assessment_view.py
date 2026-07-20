@@ -1,23 +1,23 @@
-from rest_framework import viewsets, serializers
+from rest_framework import viewsets
 from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
-
-from assessment.models import Assessment, StudentAssessment, AssessmentSkill
+from skill.models import Skill
+from assessment.models import StudentAssessment, AssessmentSkill
 from assessment.serializers.student_assessment_serializer import (
     StudentAssessmentReadSerializer,
     StudentAssessmentCreateSerializer,
     StudentAssessmentSubmitSerializer
 )
 from utils.response_helpers import success_response, error_response
+from rest_framework.permissions import AllowAny
+
 
 
 class StudentAssessmentViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing student assessment attempts.
     """
-    
-    # FIXED: queryset is StudentAssessment, not Assessment
-    queryset = StudentAssessment.objects.filter(is_deleted=False)
+    permission_classes = [AllowAny]
+    queryset = StudentAssessment.objects.all()
     
     def get_serializer_class(self):
         if self.action == 'start':
@@ -27,7 +27,6 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
         return StudentAssessmentReadSerializer
     
     def get_queryset(self):
-        """Filter to current student's attempts."""
         user = self.request.user
         if hasattr(user, 'role') and user.role == 'student':
             return self.queryset.filter(student=user)
@@ -44,7 +43,7 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
         student_assessment = serializer.save()
         read_serializer = StudentAssessmentReadSerializer(student_assessment)
         
-        return success_response(data=read_serializer.data, status=201)
+        return success_response(data=read_serializer.data, status_code=201)
     
     # ------------------------------------------------------------------------
     # SUBMIT ANSWERS
@@ -57,14 +56,14 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
         if attempt.status != StudentAssessment.Status.IN_PROGRESS:
             return error_response(
                 errors="Cannot submit. Attempt is not in progress.", 
-                status=400
+                status_code=400
             )
         
         # Validate ownership
         if attempt.student != request.user:
             return error_response(
                 errors="You can only submit your own attempts.", 
-                status=403
+                status_code=403
             )
         
         # Validate submitted data
@@ -89,7 +88,7 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
         
         # Return results
         read_serializer = StudentAssessmentReadSerializer(attempt)
-        return success_response(data=read_serializer.data, status=200)
+        return success_response(data=read_serializer.data, status_code=200)
     
    #abandon test
     @action(detail=True, url_path='abandon', methods=['post'])
@@ -99,20 +98,20 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
         if attempt.status != StudentAssessment.Status.IN_PROGRESS:
             return error_response(
                 errors="Can only abandon in-progress attempts.", 
-                status=400
+                status_code=400
             )
         
         if attempt.student != request.user:
             return error_response(
                 errors="You can only abandon your own attempts.", 
-                status=403
+                status_code=403
             )
         
         attempt.abandon()
         
         return success_response(
             data={"message": "Assessment abandoned", "status": attempt.status},
-            status=200
+            status_code=200
         )
     
     # ------------------------------------------------------------------------
@@ -125,6 +124,7 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
         
         question_map = {q['id']: q for q in questions}
         skill_stats = {}
+        skill_ids = []
         
         for answer in student_answers:
             question_id = answer.get('question_id')
@@ -135,6 +135,7 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
                 continue
             
             skill_id = question.get('skill_id')
+            skill_ids.append(skill_id)
             correct_answer = question.get('correct_answer')
             
             if skill_id not in skill_stats:
@@ -145,13 +146,22 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
             if student_answer == correct_answer:
                 skill_stats[skill_id]['correct'] += 1
         
+        # Fetch skill objects and build a lookup dict: id -> name
+        skill_objects = Skill.objects.filter(id__in=skill_ids)
+        skill_name_map = {skill.id: skill.name for skill in skill_objects}
+        
         skill_scores = []
         for skill_id, stats in skill_stats.items():
             percentage = round((stats['correct'] / stats['total']) * 100) if stats['total'] > 0 else 0
-            skill_scores.append({'skill_id': skill_id, 'score': percentage})
-        
+            skill_scores.append({
+                'skill_id': skill_id,
+                'skill_name': skill_name_map.get(skill_id, 'Unknown'),  # <-- added skill name
+                'score': percentage
+            })
+            print("DEBUG skill_scores:", skill_scores)  # <-- add this
         return {'skill_scores': skill_scores}
-    
+        
+        
     def _calculate_overall_score(self, skill_breakdown, assessment):
         """Calculate weighted overall score."""
         skill_scores = skill_breakdown.get('skill_scores', [])

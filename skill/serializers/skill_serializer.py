@@ -10,7 +10,7 @@ class SkillDetailSerializer(ModelSerializer):
 class SkillCreateSerializer(ModelSerializer):
     class Meta:
         model = Skill
-        fields = ['name', 'description']
+        fields = ['id', 'name', 'description']
         
 class SkillMiniReadSerializer(ModelSerializer):
     class Meta:
