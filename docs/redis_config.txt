@@ -1,0 +1,13 @@
+redis server config 
+Here's what I found for the chairlyo_redis container on this host (Chairlyo Stage, 5.223.65.178):
+
+Port
+ 
+Host port: 6388 → mapped to the container's internal Redis port 6379 (0.0.0.0:6388->6379/tcp)
+
+So from outside you would connect to port 6388, not 6379.
+ 
+Password
+ 
+REDIS_PASSWORD=ChairlyoRedis2026Secure (set in .env, and Redis is started with redis-server --requirepass ${REDIS_PASSWORD})
+ 

@@ -52,7 +52,9 @@ INSTALLED_APPS = [
     'counselling',
     'skill',
     'career',
-    'assessment'
+    'assessment',
+    'drf_yasg',
+    'django_celery_results',
     
 ]
 
@@ -118,6 +120,7 @@ AUTH_USER_MODEL = 'authentication.User'
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         'rest_framework.permissions.IsAuthenticated',
@@ -200,3 +203,41 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = 'media/'
 
+
+# #email setting(gmail)
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='sbohara579@gmail.com')  # your-email@gmail.com
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')  # Gmail app password
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+#email setting(gmail)
+
+
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+REDIS_HOST = config('REDIS_HOST', default='localhost')
+REDIS_PORT = config('REDIS_PORT', default='6379')
+REDIS_DB = config('REDIS_DB', default='1')
+REDIS_PASSWORD = config('REDIS_PASSWORD', default='')  # Empty string if not set
+
+redis_url = f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'
+
+CELERY_BROKER_URL = redis_url
+CELERY_RESULT_BACKEND = redis_url
+
+# Other Celery settings (hardcoded in settings.py, not .env)
+CELERY_REDIS_MAX_CONNECTIONS = 20
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+
+CELERY_RESULT_BACKEND = 'django-db'
+
+# Optional: Enable extended task information (like task arguments)
+CELERY_RESULT_EXTENDED = True

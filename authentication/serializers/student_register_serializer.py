@@ -4,78 +4,99 @@ from django.db import transaction
 from career.models import Career
 from django.contrib.auth.password_validation import validate_password
 
-class StudentProfileCreateSerializer(serializers.ModelSerializer):
-    career = serializers.PrimaryKeyRelatedField(queryset=Career.objects.all(), required=False, allow_null=True)
+
+
+class StudentProfileSerializer(serializers.ModelSerializer):
+    """Nested profile — used inside StudentSerializer and StudentRegisterSerializer"""
+    career = serializers.PrimaryKeyRelatedField(
+        queryset=Career.objects.all(),
+        required=False,
+        allow_null=True
+    )
+    
     class Meta:
         model = StudentProfile
-        fields = ['education_level', 'preferred_learning_mode', 'career']
+        fields = [
+            'education_level', 'preferred_learning_mode', 'career',
+            'bio', 'address', 'birth_date'
+        ]
+
 
 class StudentRegisterSerializer(serializers.ModelSerializer):
+    """Write-only serializer for new student registration"""
     password = serializers.CharField(write_only=True, required=True)
     password2 = serializers.CharField(write_only=True, required=True)
-    profile = StudentProfileCreateSerializer(required=False)
+    profile = StudentProfileSerializer(required=False)
     
     class Meta:
         model = User
-        fields = ['username', 'email','first_name','phone','last_name', 'password', 'password2', 'profile']
+        fields = ['id', 'username', 'email', 'first_name', 'phone', 
+                  'last_name', 'password', 'password2', 'profile']
+        read_only_fields=['id']
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
+        password = attrs.get('password')
+        password2 = attrs.get('password2')
         
-        validate_password(attrs['password'])
+        if password != password2:
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."}
+            )
+        validate_password(password)
         return attrs
-    
 
     @transaction.atomic
     def create(self, validated_data):
-        profile_data = validated_data.pop('profile', {})
+        profile_data = validated_data.pop('profile', None)
         validated_data.pop('password2')
         validated_data['role'] = 'student'
+        
         user = User.objects.create_user(**validated_data)
         
-        if profile_data:
+        if profile_data is not None:
             StudentProfile.objects.create(student=user, **profile_data)
-        return user
-    
-    
-# class StudentProfileReadSerializer(serializers.ModelSerializer):
-#     id = serializers.IntegerField(source='student.id', read_only=True)
-#     full_name = serializers.SerializerMethodField()
-#     career = serializers.StringRelatedField(read_only=True)
-    
-#     class Meta:
-#         model = StudentProfile
-#         fields = ['id', 'full_name', 'education_level', 'preferred_learning_mode', 'career']
         
-#     def get_full_name(self, obj):
-#         first = obj.student.first_name or ""
-#         last = obj.student.last_name or ""
-#         full = f"{first} {last}".strip()
-#         return full or obj.student.username
+        return user
+
+
+class StudentUpdateSerializer(serializers.ModelSerializer):
+    """Read-update serializer for existing students"""
+    profile = StudentProfileSerializer(source='student_profile', required=False)
     
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name',
+                  'phone', 'profile']
+        read_only_fields = ['id', 'username']
+    
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('student_profile', None)
+        
+        instance = super().update(instance, validated_data)
+        
+        if profile_data is not None:
+            StudentProfile.objects.update_or_create(
+                student=instance,
+                defaults=profile_data
+            )
+        
+        return instance
+
 
 class StudentUserMiniSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
+    """Lightweight read-only serializer for listings"""
     education_level = serializers.SerializerMethodField()
     preferred_learning_mode = serializers.SerializerMethodField()
     career = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'full_name', 
                   'education_level', 'preferred_learning_mode', 'career']
     
-    def get_full_name(self, obj):
-        first = obj.first_name or ""
-        last = obj.last_name or ""
-        return f"{first} {last}".strip() or obj.username
-    
     def _get_profile(self, obj):
-        try:
-            return obj.student_profile
-        except StudentProfile.DoesNotExist:
-            return None
+        return getattr(obj, 'student_profile', None)
     
     def get_education_level(self, obj):
         profile = self._get_profile(obj)
@@ -87,5 +108,4 @@ class StudentUserMiniSerializer(serializers.ModelSerializer):
     
     def get_career(self, obj):
         profile = self._get_profile(obj)
-        return str(profile.career) if profile and profile.career else None
-
+        return profile.career.title if profile and profile.career else None

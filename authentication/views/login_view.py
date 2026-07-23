@@ -15,11 +15,15 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from utils.response_helpers import error_response, success_response
 from rest_framework.permissions import AllowAny
+from rest_framework import generics
 
-class LoginView(APIView):
+class LoginView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
     permission_classes = [AllowAny]
+    
+    
     def post(self, request):
-        serializer = LoginSerializer(data=request.data, context={'request':request})
+        serializer = self.get_serializer(data=request.data, context={'request':request})
         if not serializer.is_valid():
             return error_response(errors=serializer.errors,status_code=400 )
         user = serializer.validated_data['user']

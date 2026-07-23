@@ -28,6 +28,7 @@ class User(AbstractUser,BaseModel):
                 condition=models.Q(is_deleted=False),
                 name='unique_user_username_when_not_deleted'
             ),
+
             models.UniqueConstraint(
                 fields=['phone'],
                 condition=models.Q(is_deleted=False) & ~models.Q(phone=''),
@@ -35,6 +36,10 @@ class User(AbstractUser,BaseModel):
             ),
         ]
 
+    @property
+    def full_name(self):
+        return self.first_name + ' ' + self.last_name
+    
     def __str__(self):
         return self.email
 
@@ -54,6 +59,7 @@ class BaseProfile(BaseModel):
     image = models.ImageField(upload_to='profiles/')
     address = models.CharField(max_length=100)
     birth_date = CustomFormatDateField(null=True, blank=True)
+
 
     class Meta:
         abstract = True
