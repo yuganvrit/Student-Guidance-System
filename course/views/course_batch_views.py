@@ -4,10 +4,10 @@ from course.models import CourseBatch
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from course.permissions import AdminOnlyPost
+from course.pagination import CustomPagination
 
 class CourseBatchView(viewsets.ModelViewSet):
      permission_classes = [AdminOnlyPost]
      serializer_class = CourseBatchSerializer
      queryset = CourseBatch.objects.all()
-
      

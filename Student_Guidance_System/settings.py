@@ -34,6 +34,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
+    'channels',
     'authentication',
     'base',
     'rest_framework.authtoken',
@@ -50,7 +52,9 @@ INSTALLED_APPS = [
     'course',
     'enrollment',
     'counselling',
-    'skill'
+    'skill',
+    'django_celery_results',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +85,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'student_guidance_system.wsgi.application'
+ASGI_APPLICATION = 'student_guidance_system.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [config('CELERY_BROKER_URL', default='redis://localhost:6379/0')],
+        },
+    },
+}
 
 
 # Database
@@ -119,6 +133,8 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'course.pagination.CustomPagination'
+
 }
 
 SIMPLE_JWT = {
@@ -195,3 +211,26 @@ STATIC_URL = 'static/'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = 'media/'
 
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='your_default_email@example.com')
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.example.com')
+EMAIL_PORT = int(config('EMAIL_PORT', default=587))
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default='True').lower() in ('true', '1', 't')
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default='False').lower() in ('true', '1', 't')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='your_default_email@example.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your_default_email_password')
+
+# ===================================================================
+# Celery
+# ===================================================================
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+
+
+# Use Django DB to save task states
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
