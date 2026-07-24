@@ -1,0 +1,51 @@
+student_guidance_system/
+│
+├── authentication/
+│   └── models/
+│       ├── __init__.py
+│       ├── user.py
+│       └── student_profile.py
+│
+├── skill/
+│   └── models/
+│       ├── __init__.py
+│       ├── skill.py
+│       └── student_skill.py
+│
+├── career/
+│   └── models/
+│       ├── __init__.py
+│       ├── career.py
+│       ├── career_skill.py
+│       ├── career_path.py
+│       └── student_career_goal.py
+│
+├── course/
+│   └── models/
+│       ├── __init__.py
+│       ├── course_category.py
+│       ├── course.py
+│       ├── course_skill.py
+│       └── course_batch.py
+│
+├── assessment/
+│   └── models/
+│       ├── __init__.py
+│       ├── assessment.py
+│       └── student_assessment.py
+│
+├── counseling/
+│   └── models/
+│       ├── __init__.py
+│       ├── student_counselor.py
+│       ├── counseling_session.py
+│       └── course_recommendation.py
+│
+├── enrollment/
+│   └── models/
+│       ├── __init__.py
+│       ├── enrollment.py
+│       └── progress_tracker.py
+│
+└── base/
+    └── models.py

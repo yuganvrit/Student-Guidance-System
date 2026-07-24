@@ -1,0 +1,1253 @@
+
+================================================================================
+ASSESSMENT MODEL IMPLEMENTATION GUIDE
+Student Guidance System
+================================================================================
+
+This guide provides step-by-step implementation for the ASSESSMENT model
+and its related models in Django. The same principles apply to other
+frameworks (Flask, FastAPI, Node.js, etc.) with syntax adjustments.
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. Project Setup & App Creation
+2. ASSESSMENT Model Implementation
+3. ASSESSMENT_SKILL Model Implementation
+4. STUDENT_ASSESSMENT Model Implementation
+5. Database Migrations
+6. Admin Configuration
+7. Serializers (for API)
+8. Views/API Endpoints
+9. Business Logic (Rule-Based Recommendations)
+10. Testing
+
+================================================================================
+SECTION 1: PROJECT SETUP & APP CREATION
+================================================================================
+
+Step 1.1: Create Django Project (if not already created)
+-------------------------------------------------------
+
+$ django-admin startproject student_guidance_system
+$ cd student_guidance_system
+
+Step 1.2: Create the Assessment App
+------------------------------------
+
+$ python manage.py startapp assessment
+
+Step 1.3: Add to INSTALLED_APPS
+-------------------------------
+
+# student_guidance_system/settings.py
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # Your apps
+    'users',           # USER, STUDENT_PROFILE models
+    'courses',         # COURSE, SKILL models
+    'assessment',      # ASSESSMENT models
+    'recommendations', # COURSE_RECOMMENDATION models
+]
+
+================================================================================
+SECTION 2: ASSESSMENT MODEL IMPLEMENTATION
+================================================================================
+
+File: assessment/models.py
+
+------------------------------------------------------------------------------
+2.1 Import Required Modules
+------------------------------------------------------------------------------
+
+from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from courses.models import Course, Skill  # Import from your courses app
+
+------------------------------------------------------------------------------
+2.2 Define Assessment Model
+------------------------------------------------------------------------------
+
+class Assessment(models.Model):
+    '''
+    Assessment model for the Student Guidance System.
+
+    Supports multiple assessment types:
+    - career_aptitude: Psychometric tests for career discovery
+    - course_placement: Pre-enrollment tests to determine starting level
+    - course_quiz: Progress quizzes during a course
+    - course_final: End-of-course examination
+    - skill_assessment: Standalone skill verification tests
+    '''
+
+    # ------------------------------------------------------------------------
+    # ASSESSMENT TYPE CHOICES
+    # ------------------------------------------------------------------------
+    ASSESSMENT_TYPE_CAREER_APTITUDE = 'career_aptitude'
+    ASSESSMENT_TYPE_COURSE_PLACEMENT = 'course_placement'
+    ASSESSMENT_TYPE_COURSE_QUIZ = 'course_quiz'
+    ASSESSMENT_TYPE_COURSE_FINAL = 'course_final'
+    ASSESSMENT_TYPE_SKILL_ASSESSMENT = 'skill_assessment'
+
+    ASSESSMENT_TYPE_CHOICES = [
+        (ASSESSMENT_TYPE_CAREER_APTITUDE, 'Career Aptitude'),
+        (ASSESSMENT_TYPE_COURSE_PLACEMENT, 'Course Placement'),
+        (ASSESSMENT_TYPE_COURSE_QUIZ, 'Course Quiz'),
+        (ASSESSMENT_TYPE_COURSE_FINAL, 'Course Final'),
+        (ASSESSMENT_TYPE_SKILL_ASSESSMENT, 'Skill Assessment'),
+    ]
+
+    # ------------------------------------------------------------------------
+    # TARGET LEVEL CHOICES
+    # ------------------------------------------------------------------------
+    TARGET_LEVEL_BEGINNER = 'beginner'
+    TARGET_LEVEL_INTERMEDIATE = 'intermediate'
+    TARGET_LEVEL_ADVANCED = 'advanced'
+
+    TARGET_LEVEL_CHOICES = [
+        (TARGET_LEVEL_BEGINNER, 'Beginner'),
+        (TARGET_LEVEL_INTERMEDIATE, 'Intermediate'),
+        (TARGET_LEVEL_ADVANCED, 'Advanced'),
+    ]
+
+    # ------------------------------------------------------------------------
+    # ASSESSMENT PHASE CHOICES
+    # ------------------------------------------------------------------------
+    ASSESSMENT_PHASE_PLACEMENT = 'placement'
+    ASSESSMENT_PHASE_PROGRESS = 'progress'
+    ASSESSMENT_PHASE_FINAL = 'final'
+    ASSESSMENT_PHASE_CERTIFICATION = 'certification'
+
+    ASSESSMENT_PHASE_CHOICES = [
+        (ASSESSMENT_PHASE_PLACEMENT, 'Placement'),
+        (ASSESSMENT_PHASE_PROGRESS, 'Progress'),
+        (ASSESSMENT_PHASE_FINAL, 'Final'),
+        (ASSESSMENT_PHASE_CERTIFICATION, 'Certification'),
+    ]
+
+    # ------------------------------------------------------------------------
+    # CORE FIELDS
+    # ------------------------------------------------------------------------
+    title = models.CharField(
+        max_length=255,
+        unique=True,
+        help_text='Unique title of the assessment (e.g., Python Placement Test)'
+    )
+
+    description = models.TextField(
+        blank=True,
+        help_text='Detailed description of what this assessment covers'
+    )
+
+    # ------------------------------------------------------------------------
+    # ASSESSMENT CLASSIFICATION
+    # ------------------------------------------------------------------------
+    assessment_type = models.CharField(
+        max_length=30,
+        choices=ASSESSMENT_TYPE_CHOICES,
+        default=ASSESSMENT_TYPE_COURSE_PLACEMENT,
+        help_text='Type of assessment determines business logic'
+    )
+
+    # ------------------------------------------------------------------------
+    # COURSE RELATIONSHIP (NULLABLE)
+    # ------------------------------------------------------------------------
+    # Career aptitude tests have no course (NULL)
+    # Course-linked tests reference a specific course
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='assessments',
+        help_text='NULL for career tests, NOT NULL for course-linked tests'
+    )
+
+    # ------------------------------------------------------------------------
+    # SCORING CONFIGURATION
+    # ------------------------------------------------------------------------
+    passing_score = models.PositiveIntegerField(
+        default=60,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text='Minimum score required to pass (0-100)'
+    )
+
+    max_attempts = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        help_text='Maximum number of attempts allowed'
+    )
+
+    # ------------------------------------------------------------------------
+    # DIFFICULTY & PHASE
+    # ------------------------------------------------------------------------
+    target_level = models.CharField(
+        max_length=20,
+        choices=TARGET_LEVEL_CHOICES,
+        default=TARGET_LEVEL_BEGINNER,
+        help_text='Difficulty level this assessment targets'
+    )
+
+    assessment_phase = models.CharField(
+        max_length=20,
+        choices=ASSESSMENT_PHASE_CHOICES,
+        default=ASSESSMENT_PHASE_PLACEMENT,
+        help_text='Where this assessment fits in the learning process'
+    )
+
+    # ------------------------------------------------------------------------
+    # QUESTIONS (JSON FIELD)
+    # ------------------------------------------------------------------------
+    # Example JSON structure:
+    # [
+    #   {
+    #     "id": 1,
+    #     "question_text": "What is a Python list?",
+    #     "question_type": "multiple_choice",
+    #     "options": [
+    #       {"id": "A", "text": "A mutable sequence"},
+    #       {"id": "B", "text": "An immutable sequence"},
+    #       {"id": "C", "text": "A dictionary type"}
+    #     ],
+    #     "correct_answer": "A",
+    #     "marks": 10,
+    #     "skill_id": 5
+    #   }
+    # ]
+    questions = models.JSONField(
+        default=list,
+        help_text='Array of question objects stored as JSON'
+    )
+
+    # ------------------------------------------------------------------------
+    # TIMING
+    # ------------------------------------------------------------------------
+    time_minutes = models.PositiveIntegerField(
+        default=30,
+        help_text='Time limit for completing the assessment (in minutes)'
+    )
+
+    # ------------------------------------------------------------------------
+    # STATUS & AUDIT
+    # ------------------------------------------------------------------------
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Inactive assessments are hidden from students'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(
+        default=False,
+        help_text='Soft delete flag'
+    )
+
+    # ------------------------------------------------------------------------
+    # META
+    # ------------------------------------------------------------------------
+    class Meta:
+        db_table = 'assessments'
+        ordering = ['-created_at']
+        verbose_name = 'Assessment'
+        verbose_name_plural = 'Assessments'
+
+    def __str__(self):
+        return f'{self.title} ({self.assessment_type})'
+
+    # ------------------------------------------------------------------------
+    # CUSTOM METHODS
+    # ------------------------------------------------------------------------
+
+    def total_marks(self):
+        '''Calculate total marks from all questions'''
+        return sum(q.get('marks', 0) for q in self.questions)
+
+    def question_count(self):
+        '''Return number of questions'''
+        return len(self.questions)
+
+    def is_career_assessment(self):
+        '''Check if this is a career aptitude test'''
+        return self.assessment_type == self.ASSESSMENT_TYPE_CAREER_APTITUDE
+
+    def is_course_linked(self):
+        '''Check if this assessment belongs to a course'''
+        return self.course is not None
+
+    def soft_delete(self):
+        '''Soft delete instead of hard delete'''
+        self.is_deleted = True
+        self.save()
+
+    def get_skills(self):
+        '''Get all skills tested by this assessment'''
+        return self.assessment_skills.filter(is_deleted=False)
+
+================================================================================
+SECTION 3: ASSESSMENT_SKILL MODEL IMPLEMENTATION
+================================================================================
+
+File: assessment/models.py (add below Assessment model)
+
+class AssessmentSkill(models.Model):
+    '''
+    Junction table linking Assessments to Skills with weighting.
+
+    One assessment can test multiple skills.
+    Each skill contributes a specific weightage to the total score.
+
+    Example:
+      Python Placement Test:
+        - Variables: 20%, 2 questions
+        - Loops: 20%, 2 questions
+        - Functions: 30%, 3 questions
+        - OOP: 30%, 3 questions
+    '''
+
+    assessment = models.ForeignKey(
+        Assessment,
+        on_delete=models.CASCADE,
+        related_name='assessment_skills',
+        help_text='The assessment that tests this skill'
+    )
+
+    skill = models.ForeignKey(
+        Skill,
+        on_delete=models.CASCADE,
+        related_name='assessment_skills',
+        help_text='The skill being tested'
+    )
+
+    weightage = models.PositiveIntegerField(
+        default=25,
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        help_text='Percentage of total score this skill contributes'
+    )
+
+    question_count = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        help_text='Number of questions testing this skill'
+    )
+
+    # Optional: For future use (V2)
+    # difficulty = models.CharField(
+    #     max_length=10,
+    #     choices=[('easy', 'Easy'), ('medium', 'Medium'), ('hard', 'Hard')],
+    #     default='medium',
+    #     help_text='Difficulty level of questions for this skill'
+    # )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'assessment_skills'
+        unique_together = ['assessment', 'skill']
+        verbose_name = 'Assessment Skill'
+        verbose_name_plural = 'Assessment Skills'
+
+    def __str__(self):
+        return f'{self.assessment.title} - {self.skill.name} ({self.weightage}%)'
+
+================================================================================
+SECTION 4: STUDENT_ASSESSMENT MODEL IMPLEMENTATION
+================================================================================
+
+File: assessment/models.py (add below AssessmentSkill model)
+
+from users.models import User  # Import your User model
+
+class StudentAssessment(models.Model):
+    '''
+    Records a student's attempt at an assessment.
+
+    Tracks:
+    - Answers given
+    - Per-skill scores (skill_breakdown JSON)
+    - Overall score
+    - Attempt number
+    - Status (in_progress, completed, abandoned)
+    - Time taken
+    '''
+
+    # ------------------------------------------------------------------------
+    # STATUS CHOICES
+    # ------------------------------------------------------------------------
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_COMPLETED = 'completed'
+    STATUS_ABANDONED = 'abandoned'
+
+    STATUS_CHOICES = [
+        (STATUS_IN_PROGRESS, 'In Progress'),
+        (STATUS_COMPLETED, 'Completed'),
+        (STATUS_ABANDONED, 'Abandoned'),
+    ]
+
+    # ------------------------------------------------------------------------
+    # CORE RELATIONSHIPS
+    # ------------------------------------------------------------------------
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='student_assessments',
+        help_text='The student taking the assessment'
+    )
+
+    assessment = models.ForeignKey(
+        Assessment,
+        on_delete=models.CASCADE,
+        related_name='student_assessments',
+        help_text='The assessment being taken'
+    )
+
+    # ------------------------------------------------------------------------
+    # ANSWERS (JSON)
+    # ------------------------------------------------------------------------
+    # Example JSON structure:
+    # {
+    #   "answers": [
+    #     {"question_id": 1, "answer": "A", "is_correct": true},
+    #     {"question_id": 2, "answer": "B", "is_correct": false}
+    #   ]
+    # }
+    answers = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Student answers stored as JSON'
+    )
+
+    # ------------------------------------------------------------------------
+    # SKILL BREAKDOWN (JSON) - KEY FEATURE
+    # ------------------------------------------------------------------------
+    # Example JSON structure:
+    # {
+    #   "skill_scores": [
+    #     {"skill_id": 1, "score": 90},
+    #     {"skill_id": 2, "score": 70},
+    #     {"skill_id": 3, "score": 40},
+    #     {"skill_id": 4, "score": 10}
+    #   ]
+    # }
+    # NOTE: Uses skill_id (Primary Key), NOT skill names
+    # NOTE: Does NOT contain overall_score (use score column instead)
+    skill_breakdown = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text='Per-skill scores stored as JSON. Uses skill_id, not names.'
+    )
+
+    # ------------------------------------------------------------------------
+    # SCORING
+    # ------------------------------------------------------------------------
+    score = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text='Overall score (0-100). Single source of truth.'
+    )
+
+    # ------------------------------------------------------------------------
+    # ATTEMPT TRACKING
+    # ------------------------------------------------------------------------
+    attempt_number = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        help_text='Which attempt this is (1, 2, 3, ...)'
+    )
+
+    # ------------------------------------------------------------------------
+    # STATUS
+    # ------------------------------------------------------------------------
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_IN_PROGRESS,
+        help_text='Current status of this assessment attempt'
+    )
+
+    # ------------------------------------------------------------------------
+    # TIME TRACKING (OPTIONAL)
+    # ------------------------------------------------------------------------
+    time_taken_seconds = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text='Time taken to complete (in seconds). Optional.'
+    )
+
+    # ------------------------------------------------------------------------
+    # TIMESTAMPS
+    # ------------------------------------------------------------------------
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text='When the student submitted the assessment'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    # ------------------------------------------------------------------------
+    # META
+    # ------------------------------------------------------------------------
+    class Meta:
+        db_table = 'student_assessments'
+        ordering = ['-created_at']
+        unique_together = ['student', 'assessment', 'attempt_number']
+        verbose_name = 'Student Assessment'
+        verbose_name_plural = 'Student Assessments'
+
+    def __str__(self):
+        return f'{self.student.username} - {self.assessment.title} (Attempt {self.attempt_number})'
+
+    # ------------------------------------------------------------------------
+    # CUSTOM METHODS
+    # ------------------------------------------------------------------------
+
+    def has_passed(self):
+        '''Check if student passed the assessment'''
+        if self.score is None:
+            return False
+        return self.score >= self.assessment.passing_score
+
+    def get_weak_skills(self, threshold=50):
+        '''
+        Return skills where score is below threshold.
+        Used for rule-based recommendations.
+        '''
+        weak_skills = []
+        for skill_data in self.skill_breakdown.get('skill_scores', []):
+            if skill_data.get('score', 0) < threshold:
+                weak_skills.append(skill_data)
+        return weak_skills
+
+    def can_retake(self):
+        '''Check if student can attempt again'''
+        if self.status == self.STATUS_COMPLETED:
+            attempt_count = StudentAssessment.objects.filter(
+                student=self.student,
+                assessment=self.assessment,
+                status=self.STATUS_COMPLETED
+            ).count()
+            return attempt_count < self.assessment.max_attempts
+        return False
+
+    def complete(self, score, skill_breakdown, answers=None, time_taken=None):
+        '''Mark assessment as completed with results'''
+        self.score = score
+        self.skill_breakdown = skill_breakdown
+        if answers:
+            self.answers = answers
+        if time_taken:
+            self.time_taken_seconds = time_taken
+        self.status = self.STATUS_COMPLETED
+        self.completed_at = timezone.now()
+        self.save()
+
+    def abandon(self):
+        '''Mark assessment as abandoned'''
+        self.status = self.STATUS_ABANDONED
+        self.save()
+
+================================================================================
+SECTION 5: DATABASE MIGRATIONS
+================================================================================
+
+Step 5.1: Create Migration Files
+---------------------------------
+
+$ python manage.py makemigrations assessment
+
+Step 5.2: Apply Migrations
+--------------------------
+
+$ python manage.py migrate
+
+Step 5.3: Verify Tables Created
+--------------------------------
+
+$ python manage.py dbshell
+
+> .tables
+> PRAGMA table_info(assessments);
+> PRAGMA table_info(assessment_skills);
+> PRAGMA table_info(student_assessments);
+
+================================================================================
+SECTION 6: ADMIN CONFIGURATION
+================================================================================
+
+File: assessment/admin.py
+
+from django.contrib import admin
+from .models import Assessment, AssessmentSkill, StudentAssessment
+
+@admin.register(Assessment)
+class AssessmentAdmin(admin.ModelAdmin):
+    list_display = [
+        'title', 'assessment_type', 'course', 'passing_score',
+        'max_attempts', 'target_level', 'assessment_phase', 'is_active'
+    ]
+    list_filter = [
+        'assessment_type', 'target_level', 'assessment_phase', 'is_active'
+    ]
+    search_fields = ['title', 'description']
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'description', 'assessment_type')
+        }),
+        ('Course Linkage', {
+            'fields': ('course', 'assessment_phase')
+        }),
+        ('Scoring Configuration', {
+            'fields': ('passing_score', 'max_attempts', 'target_level')
+        }),
+        ('Questions', {
+            'fields': ('questions', 'time_minutes')
+        }),
+        ('Status', {
+            'fields': ('is_active', 'is_deleted')
+        }),
+    )
+
+@admin.register(AssessmentSkill)
+class AssessmentSkillAdmin(admin.ModelAdmin):
+    list_display = ['assessment', 'skill', 'weightage', 'question_count']
+    list_filter = ['assessment', 'skill']
+    search_fields = ['assessment__title', 'skill__name']
+
+@admin.register(StudentAssessment)
+class StudentAssessmentAdmin(admin.ModelAdmin):
+    list_display = [
+        'student', 'assessment', 'score', 'attempt_number',
+        'status', 'has_passed', 'completed_at'
+    ]
+    list_filter = ['status', 'assessment__assessment_type']
+    search_fields = ['student__username', 'assessment__title']
+    readonly_fields = ['created_at', 'updated_at']
+
+================================================================================
+SECTION 7: SERIALIZERS (for REST API)
+================================================================================
+
+File: assessment/serializers.py
+
+from rest_framework import serializers
+from .models import Assessment, AssessmentSkill, StudentAssessment
+
+class AssessmentSkillSerializer(serializers.ModelSerializer):
+    skill_name = serializers.CharField(source='skill.name', read_only=True)
+
+    class Meta:
+        model = AssessmentSkill
+        fields = ['id', 'skill', 'skill_name', 'weightage', 'question_count']
+
+class AssessmentSerializer(serializers.ModelSerializer):
+    assessment_skills = AssessmentSkillSerializer(many=True, read_only=True)
+    course_title = serializers.CharField(source='course.title', read_only=True)
+    total_marks = serializers.IntegerField(read_only=True)
+    question_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Assessment
+        fields = [
+            'id', 'title', 'description', 'assessment_type',
+            'course', 'course_title', 'passing_score', 'max_attempts',
+            'target_level', 'assessment_phase', 'questions',
+            'time_minutes', 'is_active', 'assessment_skills',
+            'total_marks', 'question_count',
+            'created_at', 'updated_at'
+        ]
+
+class StudentAssessmentSerializer(serializers.ModelSerializer):
+    assessment_title = serializers.CharField(source='assessment.title', read_only=True)
+    student_name = serializers.CharField(source='student.username', read_only=True)
+    passing_score = serializers.IntegerField(source='assessment.passing_score', read_only=True)
+
+    class Meta:
+        model = StudentAssessment
+        fields = [
+            'id', 'student', 'student_name', 'assessment', 'assessment_title',
+            'answers', 'skill_breakdown', 'score', 'passing_score',
+            'attempt_number', 'status', 'time_taken_seconds',
+            'completed_at', 'created_at'
+        ]
+        read_only_fields = ['score', 'skill_breakdown', 'completed_at']
+
+class StudentAssessmentResultSerializer(serializers.ModelSerializer):
+    '''
+    Serializer for submitting assessment results.
+    '''
+    skill_breakdown = serializers.JSONField()
+    answers = serializers.JSONField(required=False)
+    time_taken_seconds = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = StudentAssessment
+        fields = ['skill_breakdown', 'answers', 'time_taken_seconds']
+
+================================================================================
+SECTION 8: VIEWS / API ENDPOINTS
+================================================================================
+
+File: assessment/views.py
+
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
+from .models import Assessment, AssessmentSkill, StudentAssessment
+from .serializers import (
+    AssessmentSerializer, AssessmentSkillSerializer,
+    StudentAssessmentSerializer, StudentAssessmentResultSerializer
+)
+
+class AssessmentViewSet(viewsets.ModelViewSet):
+    '''
+    API endpoints for Assessment management.
+    '''
+    queryset = Assessment.objects.filter(is_deleted=False)
+    serializer_class = AssessmentSerializer
+
+    def get_queryset(self):
+        '''
+        Filter assessments based on query parameters.
+        '''
+        queryset = self.queryset
+
+        # Filter by assessment type
+        assessment_type = self.request.query_params.get('type')
+        if assessment_type:
+            queryset = queryset.filter(assessment_type=assessment_type)
+
+        # Filter by course
+        course_id = self.request.query_params.get('course')
+        if course_id:
+            queryset = queryset.filter(course_id=course_id)
+
+        # Filter by target level
+        target_level = self.request.query_params.get('level')
+        if target_level:
+            queryset = queryset.filter(target_level=target_level)
+
+        # Filter active assessments only
+        is_active = self.request.query_params.get('active')
+        if is_active == 'true':
+            queryset = queryset.filter(is_active=True)
+
+        return queryset
+
+    @action(detail=True, methods=['post'])
+    def start(self, request, pk=None):
+        '''
+        Start a new assessment attempt.
+        POST /api/assessments/{id}/start/
+        '''
+        assessment = self.get_object()
+        student = request.user
+
+        # Check if student has attempts remaining
+        completed_attempts = StudentAssessment.objects.filter(
+            student=student,
+            assessment=assessment,
+            status=StudentAssessment.STATUS_COMPLETED
+        ).count()
+
+        if completed_attempts >= assessment.max_attempts:
+            return Response(
+                {'error': 'Maximum attempts reached'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Create new attempt
+        attempt_number = StudentAssessment.objects.filter(
+            student=student,
+            assessment=assessment
+        ).count() + 1
+
+        student_assessment = StudentAssessment.objects.create(
+            student=student,
+            assessment=assessment,
+            attempt_number=attempt_number,
+            status=StudentAssessment.STATUS_IN_PROGRESS
+        )
+
+        serializer = StudentAssessmentSerializer(student_assessment)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def submit(self, request, pk=None):
+        '''
+        Submit assessment answers and calculate score.
+        POST /api/assessments/{id}/submit/
+        Body: {
+            "answers": [...],
+            "skill_breakdown": {
+                "skill_scores": [
+                    {"skill_id": 1, "score": 90},
+                    {"skill_id": 2, "score": 70}
+                ]
+            },
+            "time_taken_seconds": 1200
+        }
+        '''
+        assessment = self.get_object()
+        student = request.user
+
+        # Get the in-progress attempt
+        try:
+            student_assessment = StudentAssessment.objects.get(
+                student=student,
+                assessment=assessment,
+                status=StudentAssessment.STATUS_IN_PROGRESS
+            )
+        except StudentAssessment.DoesNotExist:
+            return Response(
+                {'error': 'No in-progress assessment found. Start first.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Validate and save results
+        serializer = StudentAssessmentResultSerializer(data=request.data)
+        if serializer.is_valid():
+            # Calculate overall score from skill_breakdown
+            skill_scores = serializer.validated_data.get('skill_breakdown', {}).get('skill_scores', [])
+
+            # Calculate weighted average
+            total_score = 0
+            total_weight = 0
+            for skill_data in skill_scores:
+                skill_id = skill_data.get('skill_id')
+                score = skill_data.get('score', 0)
+
+                # Get weightage from AssessmentSkill
+                try:
+                    assessment_skill = AssessmentSkill.objects.get(
+                        assessment=assessment,
+                        skill_id=skill_id
+                    )
+                    weight = assessment_skill.weightage
+                except AssessmentSkill.DoesNotExist:
+                    weight = 100 / len(skill_scores)  # Equal weight if not defined
+
+                total_score += score * weight
+                total_weight += weight
+
+            overall_score = round(total_score / total_weight) if total_weight > 0 else 0
+
+            # Complete the assessment
+            student_assessment.complete(
+                score=overall_score,
+                skill_breakdown=serializer.validated_data.get('skill_breakdown'),
+                answers=serializer.validated_data.get('answers'),
+                time_taken=serializer.validated_data.get('time_taken_seconds')
+            )
+
+            result_serializer = StudentAssessmentSerializer(student_assessment)
+            return Response(result_serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class StudentAssessmentViewSet(viewsets.ReadOnlyModelViewSet):
+    '''
+    API endpoints for viewing student assessment history.
+    '''
+    serializer_class = StudentAssessmentSerializer
+
+    def get_queryset(self):
+        '''
+        Return only the current student's assessments.
+        '''
+        return StudentAssessment.objects.filter(
+            student=self.request.user,
+            is_deleted=False
+        )
+
+    @action(detail=False, methods=['get'])
+    def history(self, request):
+        '''
+        Get assessment history for the student.
+        GET /api/student-assessments/history/
+        '''
+        assessments = self.get_queryset()
+        serializer = self.get_serializer(assessments, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def weak_skills(self, request, pk=None):
+        '''
+        Get weak skills from a specific assessment.
+        GET /api/student-assessments/{id}/weak-skills/
+        '''
+        student_assessment = self.get_object()
+        weak_skills = student_assessment.get_weak_skills(threshold=50)
+        return Response({'weak_skills': weak_skills})
+
+================================================================================
+SECTION 9: BUSINESS LOGIC (RULE-BASED RECOMMENDATIONS)
+================================================================================
+
+File: assessment/services.py (or recommendations/services.py)
+
+from django.db.models import Q
+from .models import StudentAssessment
+from courses.models import Course, CourseSkill  # Import from courses app
+
+def generate_recommendations(student):
+    '''
+    Generate course recommendations based on assessment results.
+
+    This is a RULE-BASED system, not AI.
+    No machine learning. No neural networks. Simple if-then logic.
+
+    Args:
+        student: User object
+
+    Returns:
+        list: Recommended courses with match scores
+    '''
+    recommendations = []
+
+    # Get student's latest completed assessments
+    latest_assessments = StudentAssessment.objects.filter(
+        student=student,
+        status=StudentAssessment.STATUS_COMPLETED,
+        is_deleted=False
+    ).select_related('assessment').order_by('-completed_at')[:5]
+
+    for student_assessment in latest_assessments:
+        assessment = student_assessment.assessment
+        skill_breakdown = student_assessment.skill_breakdown
+
+        # Get weak skills (score < 50%)
+        weak_skills = student_assessment.get_weak_skills(threshold=50)
+
+        for skill_data in weak_skills:
+            skill_id = skill_data.get('skill_id')
+            skill_score = skill_data.get('score', 0)
+
+            # Find courses that teach this skill
+            courses_teaching_skill = Course.objects.filter(
+                course_skills__skill_id=skill_id,
+                is_active=True
+            ).distinct()
+
+            for course in courses_teaching_skill:
+                # Calculate match score
+                # Higher gap = higher priority = higher match score
+                match_score = 100 - skill_score  # If score is 30, match is 70
+
+                # Check if course is appropriate for student's level
+                course_level = course.level  # 'beginner', 'intermediate', 'advanced'
+
+                recommendation = {
+                    'course_id': course.id,
+                    'course_title': course.title,
+                    'skill_id': skill_id,
+                    'skill_name': skill_data.get('name', 'Unknown'),
+                    'current_score': skill_score,
+                    'match_score': match_score,
+                    'reason': f'Your score in {skill_data.get("name", "this skill")} is {skill_score}%. This course can help you improve.',
+                    'source_assessment_id': assessment.id,
+                    'recommendation_type': 'skill_gap'
+                }
+
+                recommendations.append(recommendation)
+
+    # Sort by match score (highest first)
+    recommendations.sort(key=lambda x: x['match_score'], reverse=True)
+
+    # Remove duplicates (same course recommended for multiple skills)
+    seen_courses = set()
+    unique_recommendations = []
+    for rec in recommendations:
+        if rec['course_id'] not in seen_courses:
+            seen_courses.add(rec['course_id'])
+            unique_recommendations.append(rec)
+
+    return unique_recommendations[:10]  # Return top 10
+
+def check_career_readiness(student, career):
+    '''
+    Check if a student is ready for a specific career path.
+
+    Args:
+        student: User object
+        career: Career object
+
+    Returns:
+        dict: Readiness report with skill gaps
+    '''
+    from careers.models import CareerSkill  # Import from careers app
+
+    # Get required skills for this career
+    required_skills = CareerSkill.objects.filter(career=career)
+
+    readiness_report = {
+        'career': career.title,
+        'total_skills': required_skills.count(),
+        'acquired_skills': 0,
+        'missing_skills': [],
+        'readiness_percentage': 0
+    }
+
+    for req_skill in required_skills:
+        # Check if student has this skill at required level
+        # This would check STUDENT_SKILL table
+        pass  # Implementation depends on your StudentSkill model
+
+    return readiness_report
+
+================================================================================
+SECTION 10: URL ROUTING
+================================================================================
+
+File: assessment/urls.py
+
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import AssessmentViewSet, StudentAssessmentViewSet
+
+router = DefaultRouter()
+router.register(r'assessments', AssessmentViewSet, basename='assessment')
+router.register(r'student-assessments', StudentAssessmentViewSet, basename='student-assessment')
+
+urlpatterns = [
+    path('', include(router.urls)),
+]
+
+File: student_guidance_system/urls.py (main urls)
+
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('assessment.urls')),
+    path('api/', include('users.urls')),
+    path('api/', include('courses.urls')),
+    path('api/', include('recommendations.urls')),
+]
+
+================================================================================
+SECTION 11: TESTING
+================================================================================
+
+File: assessment/tests.py
+
+from django.test import TestCase
+from django.contrib.auth import get_user_model
+from .models import Assessment, AssessmentSkill, StudentAssessment
+from courses.models import Course, Skill
+
+User = get_user_model()
+
+class AssessmentModelTest(TestCase):
+    '''
+    Test cases for Assessment model.
+    '''
+
+    def setUp(self):
+        self.course = Course.objects.create(
+            title='Python Fundamentals',
+            description='Learn Python basics'
+        )
+        self.assessment = Assessment.objects.create(
+            title='Python Placement Test',
+            assessment_type=Assessment.ASSESSMENT_TYPE_COURSE_PLACEMENT,
+            course=self.course,
+            passing_score=60,
+            max_attempts=3,
+            target_level=Assessment.TARGET_LEVEL_BEGINNER,
+            assessment_phase=Assessment.ASSESSMENT_PHASE_PLACEMENT,
+            questions=[
+                {
+                    'id': 1,
+                    'question_text': 'What is a Python list?',
+                    'question_type': 'multiple_choice',
+                    'options': [
+                        {'id': 'A', 'text': 'A mutable sequence'},
+                        {'id': 'B', 'text': 'An immutable sequence'}
+                    ],
+                    'correct_answer': 'A',
+                    'marks': 10,
+                    'skill_id': 1
+                }
+            ],
+            time_minutes=30
+        )
+
+    def test_assessment_creation(self):
+        self.assertEqual(self.assessment.title, 'Python Placement Test')
+        self.assertEqual(self.assessment.assessment_type, 'course_placement')
+        self.assertTrue(self.assessment.is_course_linked())
+
+    def test_total_marks(self):
+        self.assertEqual(self.assessment.total_marks(), 10)
+
+    def test_question_count(self):
+        self.assertEqual(self.assessment.question_count(), 1)
+
+    def test_soft_delete(self):
+        self.assessment.soft_delete()
+        self.assertTrue(self.assessment.is_deleted)
+
+class StudentAssessmentModelTest(TestCase):
+    '''
+    Test cases for StudentAssessment model.
+    '''
+
+    def setUp(self):
+        self.student = User.objects.create_user(
+            username='teststudent',
+            password='testpass123'
+        )
+        self.assessment = Assessment.objects.create(
+            title='Test Assessment',
+            assessment_type=Assessment.ASSESSMENT_TYPE_COURSE_PLACEMENT,
+            passing_score=60,
+            max_attempts=2
+        )
+        self.student_assessment = StudentAssessment.objects.create(
+            student=self.student,
+            assessment=self.assessment,
+            attempt_number=1,
+            status=StudentAssessment.STATUS_IN_PROGRESS
+        )
+
+    def test_has_passed(self):
+        self.student_assessment.score = 75
+        self.assertTrue(self.student_assessment.has_passed())
+
+        self.student_assessment.score = 50
+        self.assertFalse(self.student_assessment.has_passed())
+
+    def test_get_weak_skills(self):
+        self.student_assessment.skill_breakdown = {
+            'skill_scores': [
+                {'skill_id': 1, 'score': 90},
+                {'skill_id': 2, 'score': 40},
+                {'skill_id': 3, 'score': 30}
+            ]
+        }
+        weak_skills = self.student_assessment.get_weak_skills(threshold=50)
+        self.assertEqual(len(weak_skills), 2)
+
+    def test_can_retake(self):
+        # First attempt completed
+        self.student_assessment.status = StudentAssessment.STATUS_COMPLETED
+        self.student_assessment.score = 50
+        self.student_assessment.save()
+
+        # Should be able to retake (max_attempts=2, only 1 completed)
+        self.assertTrue(self.student_assessment.can_retake())
+
+    def test_complete(self):
+        self.student_assessment.complete(
+            score=80,
+            skill_breakdown={
+                'skill_scores': [
+                    {'skill_id': 1, 'score': 80}
+                ]
+            }
+        )
+        self.assertEqual(self.student_assessment.status, 'completed')
+        self.assertEqual(self.student_assessment.score, 80)
+        self.assertIsNotNone(self.student_assessment.completed_at)
+
+================================================================================
+SECTION 12: EXAMPLE JSON DATA
+================================================================================
+
+12.1 Assessment Questions JSON
+-------------------------------
+
+{
+  "questions": [
+    {
+      "id": 1,
+      "question_text": "What is the output of print(2 + 3)?",
+      "question_type": "multiple_choice",
+      "options": [
+        {"id": "A", "text": "23"},
+        {"id": "B", "text": "5"},
+        {"id": "C", "text": "Error"}
+      ],
+      "correct_answer": "B",
+      "marks": 10,
+      "skill_id": 1
+    },
+    {
+      "id": 2,
+      "question_text": "Which of the following is a mutable data type in Python?",
+      "question_type": "multiple_choice",
+      "options": [
+        {"id": "A", "text": "tuple"},
+        {"id": "B", "text": "list"},
+        {"id": "C", "text": "string"}
+      ],
+      "correct_answer": "B",
+      "marks": 10,
+      "skill_id": 2
+    }
+  ]
+}
+
+12.2 Student Assessment Answers JSON
+-------------------------------------
+
+{
+  "answers": [
+    {"question_id": 1, "answer": "B", "is_correct": true},
+    {"question_id": 2, "answer": "A", "is_correct": false}
+  ]
+}
+
+12.3 Skill Breakdown JSON
+--------------------------
+
+{
+  "skill_scores": [
+    {"skill_id": 1, "score": 90},
+    {"skill_id": 2, "score": 40},
+    {"skill_id": 3, "score": 70},
+    {"skill_id": 4, "score": 10}
+  ]
+}
+
+================================================================================
+SECTION 13: CHECKLIST FOR IMPLEMENTATION
+================================================================================
+
+[ ] Create assessment app
+[ ] Define Assessment model with all fields
+[ ] Define AssessmentSkill junction model
+[ ] Define StudentAssessment model
+[ ] Create and run migrations
+[ ] Register models in admin.py
+[ ] Create serializers.py
+[ ] Create views.py with ViewSets
+[ ] Create urls.py
+[ ] Create services.py for business logic
+[ ] Write tests.py
+[ ] Test API endpoints with Postman/curl
+[ ] Verify soft delete works
+[ ] Verify rule-based recommendations work
+[ ] Document API endpoints
+
+================================================================================
+END OF IMPLEMENTATION GUIDE
+================================================================================
