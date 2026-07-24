@@ -21,7 +21,6 @@ class Assessment(BaseModel):
         PLACEMENT='placement', 'Placement'
         PROGRESS='progress', 'Progress'
         FINAL = 'final', 'Final'
-        CERTIFICATION = 'certification', 'Certification'
     
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -34,6 +33,13 @@ class Assessment(BaseModel):
     questions = models.JSONField(default=list, blank=True)  # Store questions as a list of dictionaries
     time_minutes = models.PositiveIntegerField(default=60)  # Duration of the assessment in minutes
     is_active= models.BooleanField(default=True)
+
+#assessment types
+# Career Aptitude
+# Course Placement
+# Course Quiz
+# Course Final
+# Skill Assessment
 
     class Meta:
         indexes = [
@@ -79,7 +85,6 @@ class StudentAssessment(BaseModel):
     student = models.ForeignKey('authentication.User', on_delete=models.CASCADE, related_name='student_assessments', limit_choices_to={'role': 'student'})
     assessment = models.ForeignKey(Assessment, on_delete=models.CASCADE, related_name='student_assessments')
     answers = models.JSONField(default=dict, blank=True)  # Store answers as a list of dictionaries
-    skill_breakdown=models.JSONField(default=dict, blank=True)
     score = models.PositiveIntegerField(null=True,blank=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
     attempt_number = models.PositiveIntegerField(default=1)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.IN_PROGRESS)
@@ -110,7 +115,7 @@ class StudentAssessment(BaseModel):
         ),
         models.UniqueConstraint(
             fields=['student', 'assessment','attempt_number'],
-            condition=models.Q(status='is_completed'),
+            condition=models.Q(status='completed'),
             name='unique_student_assessment_attempt'
         ),
     ]
@@ -127,20 +132,20 @@ class StudentAssessment(BaseModel):
     
     @property
     def weak_skills(self):
-        threshold=60
-        weak_skills = []
-        for skill_data in self.skill_breakdown.get('skill_scores', []):
-            if skill_data.get('score', 0) < threshold:
-                weak_skills.append(skill_data)
-        return weak_skills
+        threshold = 60
+        # Query the StudentSkillResult table instead
+        return list(
+            self.skill_results
+            .filter(score__lt=threshold)
+            .values('skill_id', 'skill__name', 'score')
+        )
     
 
-    def complete(self, score, skill_breakdown, answers=None, time_taken=None):
+    def complete(self, score, answers=None, time_taken=None):
         """Mark as completed with results. Called when student submits."""
         from django.utils import timezone
         
         self.score = score
-        self.skill_breakdown = skill_breakdown
         if answers:
             self.answers = answers
         if time_taken:
@@ -154,3 +159,18 @@ class StudentAssessment(BaseModel):
         """Mark as abandoned. Called when student leaves without finishing."""
         self.status = self.Status.ABANDONED
         self.save()
+        
+        
+class StudentSkillResult(BaseModel):
+    student_assessment = models.ForeignKey(StudentAssessment, on_delete=models.CASCADE, related_name='skill_results')
+    skill = models.ForeignKey('skill.Skill', on_delete=models.SET_NULL, null=True, blank=True, related_name='student_skill_results')
+    score = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    
+    class Meta:
+        constraints=[
+            models.UniqueConstraint(fields=['student_assessment', 'skill'], condition= models.Q(is_deleted=False), name='unique_active_student_skill_result'),
+        ]
+        ordering=['-created_at']
+
+    def __str__(self):
+        return f"{self.student_assessment.student.username} - {self.skill.name} (Score: {self.score})"

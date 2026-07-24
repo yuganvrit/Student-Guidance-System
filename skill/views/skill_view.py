@@ -1,8 +1,10 @@
 from rest_framework import viewsets
 from skill.models import Skill
 from skill.serializers.skill_serializer import SkillDetailSerializer, SkillCreateSerializer
+from rest_framework.permissions import AllowAny
 
 class SkillViewSet(viewsets.ModelViewSet):
+    permission_classes =[AllowAny]
     queryset = Skill.objects.all()
     ordering=['-created_at']
     

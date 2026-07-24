@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from skill.models import Skill
-from assessment.models import StudentAssessment, AssessmentSkill
+from assessment.models import StudentAssessment, AssessmentSkill, StudentSkillResult
 from assessment.serializers.student_assessment_serializer import (
     StudentAssessmentReadSerializer,
     StudentAssessmentCreateSerializer,
@@ -74,14 +74,24 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
         answers = serializer.validated_data.get('answers')
         time_taken = serializer.validated_data.get('time_taken_seconds')
         
-        # Calculate scores
+        # 1. Calculate per-skill scores
+        # Returns: {"skill_scores": [{"skill_id": 1, "score": 90}, ...]}
         skill_breakdown = self._calculate_skill_breakdown(attempt.assessment, answers)
+        
+        # 2. Calculate overall weighted score
         overall_score = self._calculate_overall_score(skill_breakdown, attempt.assessment)
         
-        # Complete attempt
+        # 3. CREATE StudentSkillResult rows (one per skill)
+        for skill_data in skill_breakdown['skill_scores']:
+            StudentSkillResult.objects.create(
+                student_assessment=attempt,      # links to this test attempt
+                skill_id=skill_data['skill_id'],
+                score=skill_data['score']
+            )
+        
+        # 4. Complete the parent assessment (only overall score, no skill_breakdown)
         attempt.complete(
             score=overall_score,
-            skill_breakdown=skill_breakdown,
             answers=answers,
             time_taken=time_taken
         )
@@ -90,7 +100,9 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
         read_serializer = StudentAssessmentReadSerializer(attempt)
         return success_response(data=read_serializer.data, status_code=200)
     
-   #abandon test
+    # ------------------------------------------------------------------------
+    # ABANDON TEST
+    # ------------------------------------------------------------------------
     @action(detail=True, url_path='abandon', methods=['post'])
     def abandon(self, request, pk=None):
         attempt = self.get_object()
@@ -118,7 +130,10 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
     # HELPER METHODS
     # ------------------------------------------------------------------------
     def _calculate_skill_breakdown(self, assessment, answers):
-        """Calculate per-skill scores from answers."""
+        """
+        Calculate per-skill scores from answers.
+        Returns: {"skill_scores": [{"skill_id": 1, "score": 90}, ...]}
+        """
         questions = assessment.questions
         student_answers = answers.get('answers', [])
         
@@ -146,19 +161,14 @@ class StudentAssessmentViewSet(viewsets.ModelViewSet):
             if student_answer == correct_answer:
                 skill_stats[skill_id]['correct'] += 1
         
-        # Fetch skill objects and build a lookup dict: id -> name
-        skill_objects = Skill.objects.filter(id__in=skill_ids)
-        skill_name_map = {skill.id: skill.name for skill in skill_objects}
-        
         skill_scores = []
         for skill_id, stats in skill_stats.items():
             percentage = round((stats['correct'] / stats['total']) * 100) if stats['total'] > 0 else 0
             skill_scores.append({
                 'skill_id': skill_id,
-                'skill_name': skill_name_map.get(skill_id, 'Unknown'),  # <-- added skill name
                 'score': percentage
             })
-            print("DEBUG skill_scores:", skill_scores)  # <-- add this
+        
         return {'skill_scores': skill_scores}
         
         

@@ -109,7 +109,7 @@ class StudentAssessmentReadSerializer(serializers.ModelSerializer):
         model = StudentAssessment
         fields = [
             'id', 'student', 'assessment',
-            'answers', 'skill_breakdown', 'score', 
+            'answers', 'score', 
             'has_passed', 'weak_skills',  
             'attempt_number', 'status', 
             'time_taken_seconds', 'completed_at',
