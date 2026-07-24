@@ -1,6 +1,7 @@
 from base.models import BaseModel
 from django.db import models
 from skill.models import Skill
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Career(BaseModel):
     title = models.CharField(max_length=255, unique=True)
@@ -15,7 +16,10 @@ class Career(BaseModel):
 class CareerSkill(BaseModel):
     career = models.ForeignKey(Career, on_delete=models.CASCADE, related_name='career_skills')
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE, related_name='skill_careers')
-    required_level= models.PositiveIntegerField(default=1)
+    minimum_score = models.PositiveIntegerField(
+        default=60,
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
     weightage = models.PositiveIntegerField(default=1)
 
     class Meta:

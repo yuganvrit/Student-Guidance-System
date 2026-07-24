@@ -1,52 +1,102 @@
-from collections import defaultdict
-import math
+# recommendation/services/recommendation_engine.py
+from assessment.models import StudentSkillResult
+from career.models import CareerSkill, Career, CareerPath
 
-class CollaborativeRecommender:
-    def __init__(self):
-        self.user_items = defaultdict(set)
-        self.item_users = defaultdict(set)
 
-    
-    def build_matrix(self, likes):
-        self.user_items.clear()
-        self.item_users.clear()
+class CareerRecommendationEngine:
+    """
+    Matches student skills to career requirements.
+    Uses minimum_score (0-100) and weightage for ranking.
+    """
 
-        for like in likes:
-            self.user_items[like.user_id].add(like.post_id)
-            self.item_users[like.post_id].add(like.user_id)
+    def __init__(self, student):
+        self.student = student
+        self.student_skills = self._get_student_skills()
 
-    def cosine_similarity(self, user1_items, user2_items):
-        intersection = len(user1_items & user2_items)
-        if not intersection:
-            return 0.0
-        
-        return intersection / math.sqrt(len(user1_items) * len(user2_items))
+    def _get_student_skills(self):
+        """Get latest skill scores from completed assessments."""
+        results = StudentSkillResult.objects.filter(
+            student_assessment__student=self.student,
+            student_assessment__status='completed'
+        ).select_related('skill')
 
-    def get_similar_users(self, target_user_id, n=5):
-        target_items = self.user_items.get(target_user_id, set())
-        if not target_items:
-            return []
-        
-        similarities = []
-        for user_id, items in self.user_items.items():
-            if user_id == target_user_id:
-                continue
+        return {result.skill_id: result.score for result in results}
 
-            sim = self.cosine_similarity(target_items, items)
-            if sim >0:
-                similarities.append((user_id,sim))
+    def calculate_match(self, career):
+        """
+        Returns: (match_score 0-100, gap_skills list, is_ready bool)
+        """
+        required = career.career_skills.filter(
+            is_deleted=False
+        ).select_related('skill')
 
-        return sorted(similarities, key=lambda x:x[1], reverse=True)[:n]
-    
-    def recommend(self, target_user_id, n=5):
-        target_items = self.user_items.get(target_user_id, set())
-        similar_users = self.get_similar_users(target_user_id, n=10)
+        if not required.exists():
+            return 0, [], False
 
-        scores = defaultdict(float)
+        total_weighted = 0
+        total_weight = 0
+        gap_skills = []
 
-        for user_id, similarity in similar_users:
-            for post_id in self.user_items[user_id]:
-                if post_id not in target_items:
-                    scores[post_id] += similarity
+        for req in required:
+            student_score = self.student_skills.get(req.skill_id, 0)
 
-        return sorted(scores.items(), key=lambda x:x[1], reverse=True)[:n]
+            # Match ratio (capped at 1.0 = 100%)
+            match = min(student_score / req.minimum_score, 1.0) if req.minimum_score > 0 else 1.0
+            total_weighted += match * req.weightage
+            total_weight += req.weightage
+
+            # Track gaps
+            if student_score < req.minimum_score:
+                gap_skills.append({
+                    'skill_id': req.skill_id,
+                    'skill_name': req.skill.name,
+                    'required_score': req.minimum_score,
+                    'student_score': student_score,
+                    'gap': req.minimum_score - student_score,
+                    'weightage': req.weightage
+                })
+
+        match_score = round((total_weighted / total_weight) * 100) if total_weight > 0 else 0
+        is_ready = len(gap_skills) == 0
+
+        return match_score, gap_skills, is_ready
+
+    def get_recommendations(self, min_match=30, top_n=5):
+        careers = Career.objects.filter(is_deleted=False)
+        results = []
+
+        for career in careers:
+            match_score, gaps, is_ready = self.calculate_match(career)
+
+            if match_score >= min_match:
+                results.append({
+                    'career_id': career.id,
+                    'career_title': career.title,
+                    'industry': career.industry,
+                    'match_score': match_score,
+                    'is_ready': is_ready,
+                    'total_skills': career.career_skills.filter(is_deleted=False).count(),
+                    'met_skills': career.career_skills.filter(is_deleted=False).count() - len(gaps),
+                    'gap_skills': sorted(gaps, key=lambda x: -x['weightage'])[:3],
+                    # Pull learning path if career is recommended
+                    'learning_path': self._get_learning_path(career) if match_score >= 60 else []
+                })
+
+        results.sort(key=lambda x: -x['match_score'])
+        return results[:top_n]
+
+    def _get_learning_path(self, career):
+        """Fetch the pre-defined course sequence for this career."""
+        paths = CareerPath.objects.filter(
+            career=career,
+            is_deleted=False
+        ).select_related('course').order_by('sequence_number')
+
+        return [
+            {
+                'sequence': p.sequence_number,
+                'course_id': p.course.id,
+                'course_title': p.course.title,
+            }
+            for p in paths
+        ]
